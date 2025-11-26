@@ -1,0 +1,39 @@
+
+/* Fondo blanco en la navbar */
+.navbar {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Texto del nombre de la clínica */
+.navbar-brand {
+  color: #0d6efd !important;
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
+}
+
+/* Centrar las opciones */
+.navbar-nav {
+  margin: 0 auto;
+}
+
+/* Estilo de los enlaces */
+.navbar-nav .nav-link {
+  color: #555 !important;
+  font-weight: 500;
+  margin: 0 10px;
+  transition: color 0.2s ease, border-bottom 0.3s ease;
+}
+
+/* Hover */
+.navbar-nav .nav-link:hover {
+  color: #0d6efd !important;
+  border-bottom: 2px solid #0d6efd;
+}
+
+/* Enlace activo */
+.navbar-nav .nav-link.active {
+  color: #0d6efd !important;
+  border-bottom: 2px solid #0d6efd;
+}
+

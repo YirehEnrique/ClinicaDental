@@ -1,0 +1,27 @@
+        /* Estilo específico para centrar el login verticalmente */
+        body {
+            background-color: #f8f9fa; /* Gris claro suave */
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-login {
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+        }
+
+        .brand-header {
+            color: #0d6efd; /* Azul Bootstrap */
+            font-weight: bold;
+        }
+        body {
+            background-image: url('https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/480157472_1157183749128802_7100857933243813095_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=7kt3PSt4e0UQ7kNvwEE64Sy&_nc_oc=AdlrhA7j0c5BXTNcrrYVN5Hd3z-6Riqcs5gxde5iZmUAufZ-H6e4fLo8SDAnyBcUfeA&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=spma4BiXbk1kwt32F-ieXA&oh=00_AfgM_ioNrDcSvYt_OxtR8oTUOAfxuS5I0IlprfzlQmf4eA&oe=6926CFA9');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            backdrop-filter: blur(5px); 
+        }

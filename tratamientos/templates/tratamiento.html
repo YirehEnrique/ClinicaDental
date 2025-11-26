@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row g-2">
+    <div class="col-12 col-lg-4">
+        <form action method="POST">
+            {% csrf_token %}
+            {{ formTratamiento.non_field_errors }}
+            <div class="card shadow-sm">
+                <div
+                    class="card-header card-header-slim bg-white d-flex align-items-center">
+                    <i class="bi bi-clipboard-fill fs-4 me-2 text-primary"></i>
+                    <div class="seccion-tittle">Agregar nuevo tratamiento</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label ">Paciente</label>
+                            {{ formTratamiento.paciente }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dentista</label>
+                            {{ formTratamiento.dentista }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tipo</label>
+                            {{ formTratamiento.tratamiento }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Complejidad</label>
+                            {{ formTratamiento.complejidad }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notas</label>
+                            {{ formTratamiento.notas }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary btn"
+                            name="accion" value="guardarTratamiento"><i
+                                class="bi bi-check2-circle me-1"></i>Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Columna Derecha -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div
+                class="card-header card-header-slim bg-white d-flex align-items-center justify-content-between py-2">
+
+                <!-- Buscador -->
+                <form method="get" class="flex-grow-1 mx-2 small"
+                    role="search">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="q"
+                            placeholder="Buscar por nombre, apellido, teléfono o correo"
+                            value="{{ q }}">
+                        <button class="btn btn-primary"
+                            type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Cards de tratamiento -->
+
+            <div class="card-body">
+                {% for tratamientos in page_obj %}
+                <div class="card-body mb-2 border rounded shadow-sm ">
+                    <div
+                        class="d-flex justify-content-between align-items-start">
+                        <div class="gap-2">
+                            <span class="text-muted small">
+                                Complejidad:
+                                {{tratamientos.get_complejidad_display}}
+                            </span>
+                            <div><strong>{{ tratamientos.paciente }}</strong>
+                                — {{tratamientos.tratamiento}}</div>
+                            <span class="text-muted small">
+                                ult. mod. {{tratamientos.actualizada |date:"d-m-20y"}}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <span
+                                class="badge me-2 mb-2 {% if tratamientos.estado == 'T' %}text-bg-success{% elif tratamientos.estado == 'E' %}text-bg-warning{% elif tratamientos.estado == 'C' %}text-bg-danger{% endif %}">
+                                {{tratamientos.get_estado_display}}</span><br>
+                            <form action method="post">
+                                {% csrf_token %}
+                                <button type="button" data-bs-toggle="modal"
+                                    data-bs-target="#AgregarOrdenModal{{ tratamientos.id }}"
+                                    class="btn btn-primary btn-sm">Agregar
+                                    orden</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="mt-3">
+                        <h6
+                            class="text-muted border-bottom pb-2 mb-3 d-flex justify-content-between align-items-center"
+                            style="cursor: pointer;"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseFases{{ tratamientos.id }}"
+                            aria-expanded="true"
+                            aria-controls="collapseFases{{ tratamientos.id }}">
+                            <span>
+                                <i class="bi bi-list-ol me-1"></i>Plan de
+                                Tratamiento (Fases)
+                            </span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </h6>
+
+                        <div class="collapse"
+                            id="collapseFases{{ tratamientos.id }}">
+
+                            <div class="d-flex flex-column gap-2">
+                                {% for item in tratamientos.plan_items.all %}
+                                {% with estado=item.estado %}
+                                <div class="card border-0 shadow-sm alert 
+                                            {% if estado == 'C' %}alert-success border-start border-4 border-success
+                                            {% elif estado == 'E' %}alert-warning border-start border-4 border-warning
+                                            {% else %}alert-secondary border-start border-4 border-secondary{% endif %} 
+                                            p-0 overflow-hidden">
+
+                                    <div class="card-body p-3">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <span
+                                                    class="badge rounded-pill 
+                                                            {% if estado == 'C' %}bg-success{% elif estado == 'E' %}bg-warning text-dark{% else %}bg-secondary{% endif %} 
+                                                            me-2">
+                                                    Orden #{{ item.orden }}
+                                                </span>
+                                                <strong class="text-dark">{{item.nombre }}</strong>
+                                            </div>
+
+                                            <div class="dropdown">
+                                                <button
+                                                    class="btn btn-sm btn-link text-decoration-none text-muted p-0"
+                                                    type="button"
+                                                    data-bs-toggle="dropdown">
+                                                    <i
+                                                        class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul
+                                                    class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item"
+                                                            href="#">Editar
+                                                            Item</a></li>
+                                                    <li><a
+                                                            class="dropdown-item text-danger"
+                                                            href="#">Eliminar</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {% if item.notas %}
+                                        <p
+                                            class="small text-muted mb-2 fst-italic">
+                                            <i class="bi bi-sticky me-1"></i>{{
+                                            item.notas }}
+                                        </p>
+                                        {% endif %}
+
+                                        <div
+                                            class="bg-white rounded p-2 mt-2 border border-light-subtle">
+                                            <div
+                                                class="d-flex justify-content-between align-items-center mb-2">
+                                                <small
+                                                    class="text-uppercase fw-bold text-muted"
+                                                    style="font-size: 0.7rem;">Sesiones
+                                                    / Citas</small>
+                                                <button
+                                                    class="btn btn-outline-primary btn-sm py-0"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#AgendarCitaModal{{ item.id }}"
+                                                    style="font-size: 0.75rem;">
+                                                    <i class="bi bi-plus"></i>
+                                                    Agendar
+                                                </button>
+                                            </div>
+
+                                            <ul class="list-unstyled mb-0 small">
+                                                    {% for sesion in item.itemsesion_set.all %}
+                                                        <li class="d-flex align-items-center border-bottom border-light py-2">
+                                                            <div class="me-auto">
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="bi bi-calendar-event me-2 text-primary"></i>
+                                                                    <span class="fw-semibold text-dark">
+                                                                        {{ sesion.cita.fecha|date:"d/m/Y" }} --
+                                                                    </span>
+                                                                    <span
+                                                                    class="badge ms-2 {% if sesion.cita.estado_cita.estado == 'Confirmada' %}text-bg-success{% elif sesion.cita.estado_cita.estado == 'Pendiente' %}text-bg-warning{% elif sesion.cita.estado_cita.estado == 'Cancelada' %}text-bg-danger{% endif %}">  
+                                                                    {{ sesion.cita.estado_cita.estado }}
+                                                                </span>
+                                                                </div>
+                                                                <div class="text-muted ms-4" style="font-size: 0.8em;">
+                                                                    <i class="bi bi-clock me-1"></i>{{ sesion.cita.hora|time:"H:i a" }}
+                                                                </div>
+
+                                                            </div>
+                                                                    <form action method="post">
+                                                                        {% csrf_token %}
+                                                                        <div class="btn-group">
+                                                                            <input type="hidden" name="cita_id"
+                                                                                value="{{ sesion.cita.id }}">
+
+                                                                            <button class="btn btn-outline-success"
+                                                                                type="button"
+                                                                                title="Completada"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#confirmModal{{ sesion.cita.id }}"><i
+                                                                                    class="bi bi-check2"></i></button>
+                                                                            <button class="btn btn-outline-primary"
+                                                                                type="button"
+                                                                                title="Reprogramar"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#reprogramarModal{{ sesion.cita.id }}">
+                                                                                <i
+                                                                                    class="bi bi-arrow-repeat"></i></button>
+                                                                            <button class="btn btn-outline-danger"
+                                                                                type="button"
+                                                                                title="Cancelar" data-bs-toggle="modal"
+                                                                                data-bs-target="#cancelModal{{ sesion.cita.id }}"><i
+                                                                                    class="bi bi-x-lg"></i></button>
+                                                                        </div>
+                                                                    </form>
+                                                                
+
+
+                                                                    <!--Modal Reprogramar-->
+                                                                        <div class="modal fade" id="reprogramarModal{{ sesion.cita.id }}"
+                                                                            tabindex="-1"
+                                                                            aria-hidden="true">
+                                                                            <div class="modal-dialog">
+                                                                                <div class="modal-content">
+                                                                                    <div class="modal-header">
+                                                                                        <h5 class="modal-title"
+                                                                                            id="reprogramarModalLabel">Reprogramar
+                                                                                            Cita</h5>
+                                                                                        <button type="button" class="btn-close"
+                                                                                            data-bs-dismiss="modal"
+                                                                                            aria-label="Close"></button>
+                                                                                    </div>
+                                                                                    <div class="modal-body">
+                                                                                        <!-- Formulario para reprogramar -->
+                                                                                        <form method="POST">
+                                                                                            {% csrf_token %}
+
+                                                                                            <!-- Campo oculto para el ID de la cita -->
+                                                                                            <input type="hidden" name="cita_id"
+                                                                                                id="cita_id" value="{{ sesion.cita.id }}">
+
+                                                                                            <div class="mb-3">
+                                                                                                <label class="form-label">Fecha</label>
+                                                                                                {{ formCita.fecha }}
+                                                                                            </div>
+
+                                                                                            <div class="mb-3">
+                                                                                                <label for="hora"
+                                                                                                    class="form-label">Hora</label>
+                                                                                                {{ formCita.hora }}
+                                                                                            </div>
+
+                                                                                            <div class="modal-footer">
+                                                                                                <button type="button"
+                                                                                                    class="btn btn-secondary"
+                                                                                                    data-bs-dismiss="modal">Cerrar</button>
+                                                                                                <button type="submit" name="accion"
+                                                                                                    value="reprogramar"
+                                                                                                    class="btn btn-primary">Reprogramar</button>
+                                                                                            </div>
+                                                                                        </form>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <!--Modal Confirmar-->
+                                                                        <div class="modal fade" id="confirmModal{{ sesion.cita.id }}"
+                                                                            tabindex="-1"
+                                                                            aria-hidden="true">
+                                                                            <div class="modal-dialog">
+                                                                                <div class="modal-content">
+                                                                                    <div class="modal-header">
+                                                                                        <h5 class="modal-title"
+                                                                                            id="confirmModalLabel">¿Estás seguro?</h5>
+                                                                                        <button type="button" class="btn-close"
+                                                                                            data-bs-dismiss="modal"
+                                                                                            aria-label="Close"></button>
+                                                                                    </div>
+                                                                                    <div class="modal-body">
+                                                                                        ¿Desea completar la cita?
+                                                                                    </div>
+                                                                                    <form action method="post">
+                                                                                        {% csrf_token %}
+                                                                                        <input type="hidden" name="cita_id"
+                                                                                            id="cita_id" value="{{ sesion.cita.id }}">
+                                                            
+                                                                                        <div class="modal-footer">
+                                                                                            <button type="button" class="btn btn-secondary"
+                                                                                                data-bs-dismiss="modal">Cerrar</button>
+                                                                                            <button type="submit" class="btn btn-primary"
+                                                                                                name="accion" value="completada"
+                                                                                                id="confirmarBtn">Completar</button>
+                                                                                        </div>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <!--Modal Cancelar-->
+                                                                        <div class="modal fade" id="cancelModal{{ sesion.cita.id }}"
+                                                                            tabindex="-1"
+                                                                            aria-hidden="true">
+                                                                            <div class="modal-dialog">
+                                                                                <div class="modal-content">
+                                                                                    <div class="modal-header">
+                                                                                        <h5 class="modal-title"
+                                                                                            id="cancelModalLabel">¿Estás seguro?</h5>
+                                                                                        <button type="button" class="btn-close"
+                                                                                            data-bs-dismiss="modal"
+                                                                                            aria-label="Close"></button>
+                                                                                    </div>
+                                                                                    <div class="modal-body">
+                                                                                        ¿Desea cancelar la cita?
+                                                                                    </div>
+
+                                                                                    <form action method="post">
+                                                                                        {% csrf_token %}
+                                                                                        <input type="hidden" name="cita_id"
+                                                                                            value="{{ sesion.cita.id }}">
+                                                                                        <div class="modal-footer">
+                                                                                            <button type="button"
+                                                                                                class="btn btn-secondary"
+                                                                                                data-bs-dismiss="modal">Cerrar</button>
+                                                                                            <button type="submit"
+                                                                                                class="btn btn-primary"
+                                                                                                name="accion" value="cancelar"
+                                                                                                id="cancelarBtn">Cancelar</button>
+                                                                                        </div>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="text-center text-muted py-2 fst-italic" style="font-size: 0.8rem;">
+                                                            No hay citas vinculadas a este paso.
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endwith %}
+                                        <!-- Modal agendar cita -->
+                                    <div class="modal fade" id="AgendarCitaModal{{ item.id }}"
+                                        tabindex="-1"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="AgendarCitaModalLabel">Agendar
+                                                        Cita</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <!-- Formulario para reprogramar -->
+                                                    <form method="POST">
+                                                        {% csrf_token %}
+
+                                                        <!-- Campo oculto para el ID de la cita -->
+                                                        <input type="hidden" name="item_id"
+                                                            id="item_id" value="{{ item.id }}">
+
+                                                        <div class="row g-3">
+                                                            <div class="col-12">
+                                                                <label
+                                                                    class="form-label ">Paciente</label>
+                                                                {{ formCita.paciente }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label
+                                                                    class="form-label">Dentista</label>
+                                                                {{ formCita.dentista }}
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <label class="form-label">Fecha</label>
+                                                                {{ formCita.fecha }}
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label class="form-label">Hora
+                                                                    inicio</label>
+                                                                {{ formCita.hora }}
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <label class="form-label">Tipo</label>
+                                                                {{ formCita.tipo_cita }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <label class="form-label">Notas</label>
+                                                                {{ formCita.notas }}
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button"
+                                                                class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Cerrar</button>
+                                                            <button type="submit" name="accion"
+                                                                value="agendarCita"
+                                                                class="btn btn-primary">Agregar</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                <div
+                                    class="text-center py-4 text-muted border rounded border-dashed">
+                                    <i
+                                        class="bi bi-clipboard-x fs-3 d-block mb-2"></i>
+                                    No hay ítems creados para este tratamiento
+                                    aún.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Modal agregar orden -->
+
+            {% for c in page_obj %}
+            <div class="modal fade" id="AgregarOrdenModal{{ c.id }}"
+                tabindex="-1"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"
+                                id="AgregarOrdenModalLabel">Agregar orden</h5>
+                            <button type="button" class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Formulario para reprogramar -->
+                            <form method="POST">
+                                {% csrf_token %}
+
+                                <!-- Campo oculto para el ID de la cita -->
+                                <input type="hidden" name="tratamiento_id"
+                                    id="tratamiento_id" value="{{ c.id }}">
+                                {{formItem.orden}}
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    {{ formItem.nombre }}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="hora"
+                                        class="form-label">Notas</label>
+                                    {{ formItem.notas }}
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" name="accion"
+                                        value="guardarItem"
+                                        class="btn btn-primary">Agregar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+            {% endfor %}
+
+            <div class="pagination justify-content-center mt-3 m-2">
+                {% if page_obj.has_previous %}
+                <a class="btn btn-outline-primary bi bi-caret-left-fill me-1"
+                    href="?page={{ page_obj.previous_page_number }}&q={{ q }}"></a>
+                {% elif not page_obj.has_previous %}
+                <span class="btn bi bi-caret-left-fill disabled me-1"></span>
+                {% endif %}
+                <span class="btn btn-sm disabled align-items-end">Página {{page_obj.number }} de {{ page_obj.paginator.num_pages}}</span>
+                {% if page_obj.has_next %}
+                <a class="btn btn-outline-primary bi bi-caret-right-fill ms-1"
+                    href="?page={{ page_obj.next_page_number }}&q={{ q }}"></a>
+                {% elif not page_obj.has_next %}
+                <span class="btn bi bi-caret-right-fill disabled ms-1"></span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

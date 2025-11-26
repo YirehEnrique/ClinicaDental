@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-4">
+        <form action method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="card shadow-sm">
+                <div
+                    class="card-header card-header-slim bg-white d-flex align-items-center">
+                    <i class="bi bi-calendar2-week fs-4 me-2 text-primary"></i>
+                    <div class="seccion-tittle">Agregar nueva cita</div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label ">Paciente</label>
+                            {{ form.paciente }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dentista</label>
+                            {{ form.dentista }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Fecha</label>
+                            {{ form.fecha }}
+                        </div>
+                        <div class="col-3">
+                            <label class="form-label">Hora inicio</label>
+                            {{ form.hora }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tipo</label>
+                            {{ form.tipo_cita }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notas</label>
+                            {{ form.notas }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary btn" name="accion" value="guardar"><i
+                                class="bi bi-check2-circle me-1"></i>Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Card del Calendario -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div
+                class="card-header bg-white d-flex align-items-center justify-content-between">
+                <strong>Agenda</strong>
+                <form method="GET"
+                    class="d-flex gap-2 align-items-center">
+                    {% csrf_token %}
+                    <input type="date" name="fecha" class="form-control" id="fechad"
+                        value="{{ fechas }}">
+                    <select name="estado" class="form-select">
+                        <option value ='Todos'>Todos</option>
+                        <option value="Pendiente"
+                            {% if request.GET.estado == 'Pendiente' %}selected{% endif %}>
+                            Pendiente</option>
+                        <option value="Confirmada" 
+                        {% if request.GET.estado == 'Confirmada' %}selected{% endif %}>
+                            Confirmada</option>
+                        <option value="Cancelada" {% if request.GET.estado == 'Cancelada' %}selected{% endif %}>
+                            Cancelada</option>
+                    </select>
+                    <button name="filtrar"
+                        class="btn btn-primary">Filtrar</button>
+                </form>
+            </div>
+
+
+            <div class="card-body">
+                {% for cita in page_obj %}
+                <div class="card-body mb-2 border rounded shadow-sm ">
+                    <div
+                        class="d-flex justify-content-between align-items-start">
+                        <div class="gap-2">
+                            <div>
+                                <span class="text-muted small">
+                                    {{ cita.fecha | date:"d-m-20y" }} ·
+                                    {{ cita.hora }}
+                                </span>
+                            </div>
+                            <div><strong>{{ cita.paciente }}</strong>
+                                — {{cita.tipo_cita}}</div>
+                            <div><span class="text-muted small">Dra.
+                                    {{ cita.dentista }}</span></div>
+                        </div>
+                        <div class="text-end">
+                            <span
+                                class="badge me-2 mb-2 {% if cita.estado_cita.estado == 'Confirmada' %}text-bg-success{% elif cita.estado_cita.estado == 'Pendiente' %}text-bg-warning{% elif cita.estado_cita.estado == 'Cancelada' %}text-bg-danger{% endif %}">
+                                {{cita.estado_cita.estado}}</span><br>
+                            <form action method="post">
+                                {% csrf_token %}
+                                <div class="btn-group">
+                                    <input type="hidden" name="cita_id"
+                                        value="{{ cita.id }}">
+
+                                    <button class="btn btn-outline-success"
+                                        type="button"
+                                        title="Completada"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal{{ cita.id }}"><i
+                                            class="bi bi-check2"></i></button>
+                                    <button class="btn btn-outline-primary"
+                                        type="button"
+                                        title="Reprogramar"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#reprogramarModal{{ cita.id }}">
+                                        <i
+                                            class="bi bi-arrow-repeat"></i></button>
+                                    <button class="btn btn-outline-danger"
+                                        type="button"
+                                        title="Cancelar" data-bs-toggle="modal"
+                                        data-bs-target="#cancelModal{{ cita.id }}"><i
+                                            class="bi bi-x-lg"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal Reprogramar-->
+                <div class="modal fade" id="reprogramarModal{{ cita.id }}"
+                    tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="reprogramarModalLabel">Reprogramar
+                                    Cita</h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Formulario para reprogramar -->
+                                <form method="POST">
+                                    {% csrf_token %}
+
+                                    <!-- Campo oculto para el ID de la cita -->
+                                    <input type="hidden" name="cita_id"
+                                        id="cita_id" value="{{ cita.id }}">
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha</label>
+                                        {{ form.fecha }}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="hora"
+                                            class="form-label">Hora</label>
+                                        {{ form.hora }}
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" name="accion"
+                                            value="reprogramar"
+                                            class="btn btn-primary">Reprogramar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal Confirmar-->
+                <div class="modal fade" id="confirmModal{{ cita.id }}"
+                    tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="confirmModalLabel">¿Estás seguro?</h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ¿Desea completar la cita?
+                            </div>
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="cita_id"
+                                    id="cita_id" value="{{ cita.id }}">
+    
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary"
+                                        name="accion" value="completada"
+                                        id="confirmarBtn">Completar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Modal Cancelar-->
+                <div class="modal fade" id="cancelModal{{ cita.id }}"
+                    tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="cancelModalLabel">¿Estás seguro?</h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ¿Desea cancelar la cita?
+                            </div>
+
+                            <form action method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="cita_id"
+                                    value="{{cita.id}}">
+                                <div class="modal-footer">
+                                    <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit"
+                                        class="btn btn-primary"
+                                        name="accion" value="cancelar"
+                                        id="cancelarBtn">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+            <!-- Paginación -->
+            <div class="pagination justify-content-center mt-3 m-2">
+                {% if page_obj.has_previous %}
+                <a class="btn btn-outline-primary bi bi-caret-left-fill me-1"
+                    href="?page={{ page_obj.previous_page_number }}&estado={{ estado }}&fecha={{ fechas }}"></a>
+                {% elif not page_obj.has_previous %}
+                <span class="btn bi bi-caret-left-fill disabled me-1"></span>
+                {% endif %}
+                <span class="btn btn-sm disabled align-items-end">
+                    Página {{ page_obj.number }} de
+                    {{page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                <a class="btn btn-outline-primary bi bi-caret-right-fill ms-1"
+                    href="?page={{ page_obj.next_page_number }}&estado={{ estado }}&fecha={{ fechas }}"></a>
+                {% elif not page_obj.has_next %}
+                <span class="btn bi bi-caret-right-fill disabled ms-1"></span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
