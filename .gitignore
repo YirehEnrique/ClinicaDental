@@ -1,0 +1,19 @@
+# .gitignore para Django
+
+# Entornos virtuales (¡CRUCIAL!)
+venv/
+env/
+.env
+
+# Archivos de Python compilados
+__pycache__/
+*.pyc
+
+# Base de datos (Opcional: Si es tarea, puedes borrar esta línea para subirla)
+# db.sqlite3
+
+# Archivos estáticos recolectados
+staticfiles/
+
+# Archivos de sistema
+.DS_Store
