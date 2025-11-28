@@ -33,7 +33,6 @@ class FormPlanTratamiento(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        # 1. Recuperamos los datos que el usuario seleccionó
         paciente = cleaned_data.get('paciente')
         tipo_tratamiento = cleaned_data.get('tratamiento')
 

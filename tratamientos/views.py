@@ -22,6 +22,8 @@ def tratamiento(request):
 
     if request.method == 'POST':
         cita_id=request.POST.get('cita_id')
+        paciente_id = request.POST.get('paciente_id')
+
         if accion == 'guardarTratamiento':
             formTratamiento=FormPlanTratamiento(request.POST)        
             if formTratamiento.is_valid():
@@ -32,6 +34,7 @@ def tratamiento(request):
                 for field, errors in formTratamiento.errors.items():
                     for error in errors:
                         messages.error(request, error)
+                        
         elif accion == 'guardarItem':
             tratamiento_id=request.POST.get('tratamiento_id')
             plan_tratamiento= get_object_or_404(PlanTratamiento, id=tratamiento_id)
@@ -58,15 +61,22 @@ def tratamiento(request):
                         else:
                             messages.error(request, f"{error}")
 
-
         elif accion=="agendarCita":
             item_id=request.POST.get('item_id')
-            formCita=FormCita(request.POST)
+
+            datos_formulario = request.POST.copy()
+            datos_formulario['paciente'] = paciente_id
+
+            paciente_id=request.POST.get('paciente_id')
+            formCita=FormCita(datos_formulario)
+            
             if formCita.is_valid():
-                nueva_cita=formCita.save()
+                nueva_cita=formCita.save(commit=False)
+                nueva_cita.paciente_id=paciente_id
+                nueva_cita.save()
                 ItemSesion.objects.create(plan_item_id=item_id,cita_id=nueva_cita.id)
                 messages.success(request, "Cita agendada.")
-                return redirect('tratamiento')
+                return redirect('tratamiento')  
             else:
                 for field, errors in formCita.errors.items():
                     for error in errors:

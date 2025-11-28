@@ -92,9 +92,6 @@
                             </span>
                         </div>
                         <div class="text-end ">
-                            <!-- <span
-                                class="badge me-2 mb-2 {% if tratamientos.estado == 'T' %}text-bg-success{% elif tratamientos.estado == 'E' %}text-bg-warning{% elif tratamientos.estado == 'C' %}text-bg-danger{% endif %}">
-                                {{tratamientos.get_estado_display}}</span><br> -->
                             <form action method="post">
                                 {% csrf_token %}
                                 <button type="button" data-bs-toggle="modal"
@@ -370,15 +367,16 @@
                                                     <form method="POST">
                                                         {% csrf_token %}
 
-                                                        <!-- Campo oculto para el ID de la cita -->
                                                         <input type="hidden" name="item_id"
                                                             id="item_id" value="{{ item.id }}">
+                                                        <input type="hidden" name="paciente_id" value="{{ item.plan_tratamiento.paciente.id }}">
 
                                                         <div class="row g-3">
                                                             <div class="col-12">
-                                                                <label
-                                                                    class="form-label ">Paciente</label>
-                                                                {{ formCita.paciente }}
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="bi bi-person-fill fs-3 me-2 text-secondary"></i>
+                                                                    <p class="text-dark fs-5"><strong>{{tratamientos.paciente.nb1}} {{tratamientos.paciente.ap1}}</strong></p>
+                                                                </div>
                                                             </div>
                                                             <div class="col-12">
                                                                 <label
@@ -449,11 +447,9 @@
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <!-- Formulario para reprogramar -->
                             <form method="POST">
                                 {% csrf_token %}
 
-                                <!-- Campo oculto para el ID de la cita -->
                                 <input type="hidden" name="tratamiento_id"
                                     id="tratamiento_id" value="{{ c.id }}">
                                 {{formItem.orden}}

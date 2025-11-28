@@ -65,9 +65,8 @@ class FormCita(forms.ModelForm):
         cleaned_data = super().clean()
         fecha = cleaned_data.get('fecha')
         hora = cleaned_data.get('hora')
-
+        
         if fecha and hora:
-
             cita_nueva_dt = datetime.combine(fecha, hora)
 
             limite_inferior = (cita_nueva_dt - timedelta(minutes=29)).time()
@@ -76,7 +75,7 @@ class FormCita(forms.ModelForm):
             citas_conflicto = Cita.objects.filter(
                 fecha=fecha,
                 hora__range=(limite_inferior, limite_superior)
-            )
+            ).exclude(estado_cita_id=3)
 
             if self.instance.pk:
                 citas_conflicto = citas_conflicto.exclude(pk=self.instance.pk)
