@@ -260,6 +260,9 @@
                                                                                             {% csrf_token %}
 
                                                                                             <!-- Campo oculto para el ID de la cita -->
+                                                                                            <input type="hidden" name="paciente" value="{{ sesion.cita.paciente.id }}">
+                                                                                            <input type="hidden" name="dentista" value="{{ sesion.cita.dentista.id }}">
+                                                                                            <input type="hidden" name="tipo_cita" value="{{ sesion.cita.tipo_cita.id }}">
                                                                                             <input type="hidden" name="cita_id"
                                                                                                 id="cita_id" value="{{ sesion.cita.id }}">
 

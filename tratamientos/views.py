@@ -1,3 +1,4 @@
+from urllib import request
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import FormPlanTratamiento, FormPlanItems
@@ -56,6 +57,8 @@ def tratamiento(request):
                             messages.error(request, f"{error}")
                         else:
                             messages.error(request, f"{error}")
+
+
         elif accion=="agendarCita":
             item_id=request.POST.get('item_id')
             formCita=FormCita(request.POST)
@@ -96,19 +99,23 @@ def tratamiento(request):
                     messages.warning(request, "La cita ha sido cancelada.")
 
             elif accion == 'reprogramar':
-            
-                fecha_nueva = request.POST.get('fecha')
-                hora_nueva = request.POST.get('hora')
+                cita = get_object_or_404(Cita, id=cita_id)
+                form= FormCita(request.POST, instance=cita)
 
-                if not fecha_nueva or not hora_nueva:
-                    messages.error(request, "Debes ingresar fecha y hora para reprogramar.")
-                else:
-                    cita.fecha = fecha_nueva
-                    cita.hora = hora_nueva
-                    cita.estado_cita_id = 1
-                    cita.save()
+                if form.is_valid():
+                    citag = form.save(commit=False)
+                    
+                    citag.estado_cita_id = 1 
+                    
+                    citag.save()
+                    
                     messages.info(request, "Cita reprogramada correctamente.")
+                else:
+                    for field, errors in form.errors.items():
+                        for error in errors:
+                            messages.error(request, error)
         
+
             return redirect('tratamiento')
     if q:
         tratamientos = tratamientos.filter(

@@ -5,6 +5,8 @@ from .models import Paciente
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from cita.models import Cita
+from tratamientos.models import PlanTratamiento
 
 @login_required
 def paciente(request):
@@ -24,7 +26,6 @@ def paciente(request):
                             messages.error(request, error)
                         else:
                             messages.error(request, f"{error}")
-
         elif accion == 'editar':
             paciente_obj = get_object_or_404(Paciente, id=paciente_id)
             form = Formpaciente(request.POST, instance=paciente_obj)
@@ -39,33 +40,38 @@ def paciente(request):
                             messages.error(request, error)
                         else:
                             messages.error(request, f"{error}")
-
         return redirect('paciente')
-
     else:
         form = Formpaciente()
-
-        q = request.GET.get('q', '').strip()
-        pacientes = Paciente.objects.all().order_by('-id')
-
-        if q:
-            pacientes = pacientes.filter(
-                Q(nb1__icontains=q) | 
-                Q(nb2__icontains=q) | 
-                Q(ap1__icontains=q) | 
-                Q(ap2__icontains=q) | 
-                Q(telefono__icontains=q) | 
-                Q(correo__icontains=q)
-            )
         
-        paginator = Paginator(pacientes, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+    q = request.GET.get('q', '').strip()
+    pacientes = Paciente.objects.all().order_by('-id').prefetch_related(
+        'cita_set', 
+        'cita_set__estado_cita',
+        'plantratamiento_set',
+        'plantratamiento_set__tratamiento'
+    )
 
-        context = {
-            'form': form, 
-            'page_obj': page_obj, 
-            'q': q,
-        }
+    if q:
+        pacientes = pacientes.filter(
+            Q(nb1__icontains=q) | 
+            Q(nb2__icontains=q) | 
+            Q(ap1__icontains=q) | 
+            Q(ap2__icontains=q) | 
+            Q(telefono__icontains=q) | 
+            Q(correo__icontains=q)
+        )
 
-        return render(request, 'paciente.html', context)
+    paginator = Paginator(pacientes, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'form': form, 
+        'page_obj': page_obj, 
+        'q': q,
+        'cita': Cita.objects.all(),
+        'tratamiento': PlanTratamiento.objects.all(),
+    }
+
+    return render(request, 'paciente.html', context)

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row g-2">
+<div class="row g-3">
     <div class="col-12 col-lg-4">
         <form action method="POST">
             {% csrf_token %}
@@ -141,13 +141,21 @@
                                 <td>{{ c.get_sexo_display }}</td>
                                 <td>{% if c.correo %}{{ c.correo }}{% else %}—{% endif %}</td>
                                 <td>
-                                    <button class="bg-primary-subtle"
-                                    type="button"
-                                    title="Editar"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editarModal{{ c.id }}">
-                                    <i class="bi bi-pencil-square"></i></button>
-                                </td>
+                                    <div class="btn-group">
+                                        <button class="bg-primary-subtle"
+                                        type="button"
+                                        title="Editar"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editarModal{{ c.id }}">
+                                        <i class="bi bi-pencil-square"></i></button>
+                                        <button class="bg-danger-subtle"
+                                        type="button"
+                                        title="cartilla"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cartillaModal{{ c.id }}">
+                                        <i class="bi bi-collection"></i></button>
+                                    </div>
+                                </td>                                
                             </tr>
                             {% empty %}
                             <tr>
@@ -164,6 +172,140 @@
                 {% for c in page_obj %}
                 <!--Modal Editar-->
                 <div class="modal fade" id="editarModal{{ c.id }}"
+                tabindex="-1"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <i class="bi bi-pencil-fill fs-3 me-2 text-primary"></i>
+                            <h5 class="modal-title"
+                            id="reprogramarModalLabel">Editar cliente</h5>
+                            <button type="button" class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Formulario para reprogramar -->
+                            <form method="POST">
+                                {% csrf_token %}
+                                        <!-- Campo oculto para el ID del paciente -->
+                                        <input type="hidden" name="paciente_id"
+                                            id="paciente_id" value="{{ c.id }}">
+                                            <div class="card shadow-sm">
+                                                <div class="card-body">
+                                                    <h6 class="pb-1 fs-5">Identificación</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="nb1"
+                                                                    class="form-label">Primer Nombre
+                                                                    {% if form.nb1.field.required %}<span
+                                                                        class="text-danger">*</span>
+                                                                    {% endif %}</label>
+                                                                <input type="text" name="nb1" id="nb1" class="form-control" value="{{c.nb1}}"></input>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="nb2"
+                                                                    class="form-label">Segundo
+                                                                    Nombre</label>
+                                                                <input type="text"  name="nb2" id="nb2" class="form-control" value="{% if c.nb2 %}{{c.nb2}}{% endif %}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="ap1"
+                                                                    class="form-label">Primer Apellido
+                                                                    {% if form.ap1.field.required %}<span
+                                                                        class="text-danger">*</span>
+                                                                    {% endif %}</label>
+                                                                <input type="text"  name="ap1" id="ap1" class="form-control" value="{{c.ap1}}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="ap2"
+                                                                    class="form-label">Segundo
+                                                                    Apellido</label>
+                                                                <input type="text"  name="ap2" id="ap2" class="form-control" value="{% if c.ap2 %}{{c.ap2}}{% endif %}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <h6 class="pb-1 fs-5">Contacto</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label
+                                                                    for="telefono"
+                                                                    class="form-label">Telefono
+                                                                </label>
+                                                                <input 
+                                                                    type="tel" 
+                                                                    name="telefono" 
+                                                                    id="telefono" 
+                                                                    class="form-control" 
+                                                                    value="{{ c.telefono|default:'' }}" 
+                                                                    maxlength="8"
+                                                                    minlength="8"
+                                                                    pattern="[0-9]{8}"
+                                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                                    ></input>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="mb-3">
+                                                                <label for="sexo"
+                                                                    class="form-label">
+                                                                    {{ form.sexo.label }}
+                                                                    {% if form.sexo.field.required %}
+                                                                    <span class="text-danger">*</span>
+                                                                    {% endif %}
+                                                                </label>
+                                                                <select name="sexo" id="sexo" class="form-control" >
+                                                                    <option value="M" {% if c.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                                                                    <option value="F" {% if c.sexo == 'F' %}selected{% endif %}>Femenino</option>
+                                                                </select> 
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-2">|
+                                                        <label for="correo"
+                                                            class="form-label">Correo
+                                                        </label>
+                                                        <input 
+                                                            type="email" 
+                                                            name="correo" 
+                                                            id="correo" 
+                                                            class="form-control" 
+                                                            value="{{ c.correo|default:'' }}" 
+                                                            maxlength="254"
+                                                            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+                                                            title="Introduce un formato válido: ejemplo@dominio.com"
+                                                            oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')"
+                                                            ></input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                            </form>
+                        </div>
+                                    <div class="modal-footer">
+                                        <button type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cerrar</button>
+                                        <button type="submit" name="accion"
+                                            value="editar"
+                                            class="btn btn-primary">Editar</button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                <!--Modal cartilla-->
+                <div class="modal fade" id="cartillaModal{{ c.id }}"
                     tabindex="-1"
                     aria-hidden="true">
                     <div class="modal-dialog">
@@ -171,7 +313,7 @@
                             <div class="modal-header">
                                 <i class="bi bi-pencil-fill fs-3 me-2 text-primary"></i>
                                 <h5 class="modal-title"
-                                    id="reprogramarModalLabel">Editar cliente</h5>
+                                    id="cartillaModalLabel">Cartilla Cliente</h5>
                                 <button type="button" class="btn-close"
                                     data-bs-dismiss="modal"
                                     aria-label="Close"></button>
@@ -180,111 +322,29 @@
                                 <!-- Formulario para reprogramar -->
                                 <form method="POST">
                                     {% csrf_token %}
-                                    <!-- Campo oculto para el ID del paciente -->
-                                    <input type="hidden" name="paciente_id"
-                                        id="paciente_id" value="{{ c.id }}">
-                                        <div class="card shadow-sm">
-                                            <div class="card-body">
-                                                <h6 class="pb-1 fs-5">Identificación</h6>
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="nb1"
-                                                                class="form-label">Primer Nombre
-                                                                {% if form.nb1.field.required %}<span
-                                                                    class="text-danger">*</span>
-                                                                {% endif %}</label>
-                                                            <input type="text" name="nb1" id="nb1" class="form-control" value="{{c.nb1}}"></input>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="nb2"
-                                                                class="form-label">Segundo
-                                                                Nombre</label>
-                                                            <input type="text"  name="nb2" id="nb2" class="form-control" value="{% if c.nb2 %}{{c.nb2}}{% endif %}"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
 
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="ap1"
-                                                                class="form-label">Primer Apellido
-                                                                {% if form.ap1.field.required %}<span
-                                                                    class="text-danger">*</span>
-                                                                {% endif %}</label>
-                                                            <input type="text"  name="ap1" id="ap1" class="form-control" value="{{c.ap1}}"></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="ap2"
-                                                                class="form-label">Segundo
-                                                                Apellido</label>
-                                                            <input type="text"  name="ap2" id="ap2" class="form-control" value="{% if c.ap2 %}{{c.ap2}}{% endif %}"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <h6 class="pb-1 fs-5">Contacto</h6>
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label
-                                                                for="telefono"
-                                                                class="form-label">Telefono
-                                                            </label>
-                                                            <input 
-                                                                type="tel" 
-                                                                name="telefono" 
-                                                                id="telefono" 
-                                                                class="form-control" 
-                                                                value="{{ c.telefono|default:'' }}" 
-                                                                maxlength="8"
-                                                                minlength="8"
-                                                                pattern="[0-9]{8}"
-                                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                                                ></input>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="sexo"
-                                                                class="form-label">
-                                                                {{ form.sexo.label }}
-                                                                {% if form.sexo.field.required %}
-                                                                <span class="text-danger">*</span>
-                                                                {% endif %}
-                                                            </label>
-                                                            <select name="sexo" id="sexo" class="form-control" >
-                                                                <option value="M" {% if c.sexo == 'M' %}selected{% endif %}>Masculino</option>
-                                                                <option value="F" {% if c.sexo == 'F' %}selected{% endif %}>Femenino</option>
-                                                            </select> 
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-2">|
-                                                    <label for="correo"
-                                                        class="form-label">Correo
-                                                    </label>
-                                                    <input 
-                                                        type="email" 
-                                                        name="correo" 
-                                                        id="correo" 
-                                                        class="form-control" 
-                                                        value="{{ c.correo|default:'' }}" 
-                                                        maxlength="254"
-                                                        pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
-                                                        title="Introduce un formato válido: ejemplo@dominio.com"
-                                                        oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')"
-                                                        ></input>
-                                                </div>
-                                            </div>
-                                        
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            {{ c.nb1}}
+                                            {% if c.nb2 %}{{ c.nb2 }}{% endif %}
+                                            {{ c.ap1 }}
+                                            {% if c.ap2 %}{{ c.ap2 }}{% endif %}
                                         </div>
-                                    </div>
+                                        <div class="col-12">
+                                            <h6 class="pb-1 fs-5">Citas</h6>
+                                            <ul>
+                                                {% for cita in cita %}
+                                                    {% if cita.paciente.id == c.id %}
+                                                        <li>
+                                                            {{ cita.fecha }} - {{ cita.get_estado_cita_display }}
+                                                        </li>
+                                                    {% endif %}
+                                                {% empty %}
+                                                    <li>No hay citas registradas.</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+
                                     <div class="modal-footer">
                                         <button type="button"
                                             class="btn btn-secondary"
@@ -297,21 +357,21 @@
                             </div>
                         </div>
                     </div>
-                
-                {% endfor %}
-                <div class="pagination justify-content-center mt-3 m-2">
-                    {% if page_obj.has_previous %}
-                        <a class="btn btn-outline-primary bi bi-caret-left-fill me-1" href="?page={{ page_obj.previous_page_number }}&q={{ q }}"></a>
-                    {% elif not page_obj.has_previous %}    
-                        <span class="btn bi bi-caret-left-fill disabled me-1"></span>
-                    {% endif %}
-                    <span class="btn btn-sm disabled align-items-end">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-                    {% if page_obj.has_next %}
-                        <a class="btn btn-outline-primary bi bi-caret-right-fill ms-1" href="?page={{ page_obj.next_page_number }}&q={{ q }}"></a>
-                    {% elif not page_obj.has_next %}    
-                        <span class="btn bi bi-caret-right-fill disabled ms-1"></span>
-                    {% endif %}
                 </div>
+                {% endfor %}
+            </div>
+            <div class="pagination justify-content-center mt-3 m-2">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-outline-primary bi bi-caret-left-fill me-1" href="?page={{ page_obj.previous_page_number }}&q={{ q }}"></a>
+                {% elif not page_obj.has_previous %}    
+                    <span class="btn bi bi-caret-left-fill disabled me-1"></span>
+                {% endif %}
+                <span class="btn btn-sm disabled align-items-end">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="btn btn-outline-primary bi bi-caret-right-fill ms-1" href="?page={{ page_obj.next_page_number }}&q={{ q }}"></a>
+                {% elif not page_obj.has_next %}    
+                    <span class="btn bi bi-caret-right-fill disabled ms-1"></span>
+                {% endif %}
             </div>
         </div>
     </div>

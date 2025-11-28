@@ -38,10 +38,14 @@ class FormDentista(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         
-        nb1 = cleaned_data.get('nb1')
-        nb2 = cleaned_data.get('nb2')
-        ap1 = cleaned_data.get('ap1')
-        ap2 = cleaned_data.get('ap2')
+        nb1 = cleaned_data.get('nb1', '').strip()
+        nb2 = cleaned_data.get('nb2', '')
+        if nb2: nb2 = nb2.strip()
+        
+        ap1 = cleaned_data.get('ap1', '').strip()
+        ap2 = cleaned_data.get('ap2', '')
+        if ap2: ap2 = ap2.strip()
+        
         telefono = cleaned_data.get('telefono')
         correo = cleaned_data.get('correo')
 

@@ -65,33 +65,20 @@ def cita(request):
 
         
         elif accion == 'reprogramar':
-            # 1. Obtenemos la cita original (usamos get_object_or_404 por seguridad)
             cita = get_object_or_404(Cita, id=cita_id)
-            
-            # 2. INSTANCIAMOS EL FORMULARIO
-            # - request.POST: Contiene la nueva fecha y hora que envió el usuario.
-            # - instance=cita_a_editar: Le dice al form que es una EDICIÓN. 
-            #   Esto activa tu lógica de "exclude(pk=self.instance.pk)" para que no choque consigo misma.
             form= FormCita(request.POST, instance=cita)
-            
-            # 3. VALIDAMOS
+
             if form.is_valid():
-                # Si pasa la validación de los 30 mins, preparamos el guardado
                 citag = form.save(commit=False)
                 
-                # Restablecemos el estado a "Pendiente" (ID 1)
                 citag.estado_cita_id = 1 
                 
-                # Guardamos definitivamente en la BD
                 citag.save()
                 
                 messages.info(request, "Cita reprogramada correctamente.")
             else:
-                # 4. SI FALLA (Choque de horario u otro error)
-                # Extraemos los errores del formulario y los mostramos como alertas rojas
                 for field, errors in form.errors.items():
                     for error in errors:
-                        # Esto mostrará: "Choque de horario: Ya existe una cita a las..."
                         messages.error(request, error)
             
             return redirect('cita')

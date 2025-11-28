@@ -86,7 +86,7 @@
                             <div>
                                 <span class="text-muted small">
                                     {{ cita.fecha | date:"d-m-20y" }} ·
-                                    {{ cita.hora }}
+                                    {{ cita.hora | time:"h:i a" }}
                                 </span>
                             </div>
                             <div><strong>{{ cita.paciente }}</strong>
