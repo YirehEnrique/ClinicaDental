@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.utils import timezone
 from django import forms
 from .models import Cita
@@ -45,18 +46,42 @@ class FormCita(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Que NO sea obligatorio en el formulario
         self.fields['estado_cita'].required = False
-        # Que salga por defecto el estado con id 1 (ej. Pendiente)
         self.fields['estado_cita'].initial = 1
-        # Inicio automatico con la fecha actual
         self.fields['fecha'].initial = timezone.now().date()
+        self.fields['dentista'].empty_label = None
 
     def save(self, commit=True):
         obj = super().save(commit=False)
-        # Si el usuario no eligió nada, ponle estado 1
         if self.cleaned_data.get('estado_cita') is None:
-            obj.estado_cita_id = 1   # o EstadoCita.objects.get(pk=1)
+            obj.estado_cita_id = 1 
         if commit:
             obj.save()
         return obj
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha = cleaned_data.get('fecha')
+        hora = cleaned_data.get('hora')
+
+        if fecha and hora:
+
+            cita_nueva_dt = datetime.combine(fecha, hora)
+
+            limite_inferior = (cita_nueva_dt - timedelta(minutes=29)).time()
+            limite_superior = (cita_nueva_dt + timedelta(minutes=29)).time()
+
+            citas_conflicto = Cita.objects.filter(
+                fecha=fecha,
+                hora__range=(limite_inferior, limite_superior)
+            )
+
+            if self.instance.pk:
+                citas_conflicto = citas_conflicto.exclude(pk=self.instance.pk)
+
+            if citas_conflicto.exists():
+                cita_ocupada = citas_conflicto.first() 
+                mensaje = f"Choque de horario: Ya existe una cita a las {cita_ocupada.hora.strftime('%H:%M')}."
+                self.add_error('hora', mensaje)
+
+        return cleaned_data

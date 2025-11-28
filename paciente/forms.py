@@ -55,46 +55,66 @@ class Formpaciente(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         
-        # Obtener datos limpios del formulario
-        nb1 = cleaned_data.get('nb1')
-        nb2 = cleaned_data.get('nb2')
-        ap1 = cleaned_data.get('ap1')
-        ap2 = cleaned_data.get('ap2')
+        # 1. OBTENER Y LIMPIAR DATOS (Quitamos espacios sobrantes con .strip())
+        nb1 = cleaned_data.get('nb1', '').strip()
+        nb2 = cleaned_data.get('nb2', '') # Si es None, lo dejamos como cadena vacía ''
+        if nb2: nb2 = nb2.strip()
+        
+        ap1 = cleaned_data.get('ap1', '').strip()
+        ap2 = cleaned_data.get('ap2', '')
+        if ap2: ap2 = ap2.strip()
+        
         telefono = cleaned_data.get('telefono')
         correo = cleaned_data.get('correo')
 
+        # 2. VALIDAR DUPLICIDAD DE NOMBRE COMPLETO
+        # Usamos __iexact para que "Juan" sea igual a "juan" o "JUAN"
+        
+        # Base de la consulta: Primer Nombre y Primer Apellido (Obligatorios)
+        query_nombre = Q(nb1__iexact=nb1) & Q(ap1__iexact=ap1)
+
+        # Validación del Segundo Nombre (Opcional)
+        if nb2:
+            # Si el usuario escribió un segundo nombre, buscamos coincidencia exacta
+            query_nombre &= Q(nb2__iexact=nb2)
+        else:
+            # Si el usuario NO escribió segundo nombre, buscamos en la BD registros que TAMPOCO tengan
+            query_nombre &= (Q(nb2__isnull=True) | Q(nb2=''))
+
+        # Validación del Segundo Apellido (Opcional)
+        if ap2:
+            query_nombre &= Q(ap2__iexact=ap2)
+        else:
+            query_nombre &= (Q(ap2__isnull=True) | Q(ap2=''))
+
+        # Ejecutamos la búsqueda
+        duplicado_nombre = Paciente.objects.filter(query_nombre)
+
+        # Excluir al propio paciente si estamos editando
+        if self.instance.pk:
+            duplicado_nombre = duplicado_nombre.exclude(pk=self.instance.pk)
+
+        if duplicado_nombre.exists():
+            raise forms.ValidationError(
+                f"Ya existe un paciente registrado como '{nb1} {ap1}'. Verifica en el buscador."
+            )
+
+        # 3. VALIDAR TELÉFONO
         if telefono:
             duplicado_tel = Paciente.objects.filter(telefono=telefono)
             if self.instance.pk:
                 duplicado_tel = duplicado_tel.exclude(pk=self.instance.pk)
-                
+            
             if duplicado_tel.exists():
                 self.add_error('telefono', f"El teléfono {telefono} ya pertenece a otro paciente.")
+
+        # 4. VALIDAR CORREO
         if correo:
             duplicado_mail = Paciente.objects.filter(correo=correo)
             if self.instance.pk:
                 duplicado_mail = duplicado_mail.exclude(pk=self.instance.pk)
-                
+            
             if duplicado_mail.exists():
                 self.add_error('correo', f"El correo {correo} ya está registrado.")
-                
-        duplicado_nombre = Paciente.objects.filter(
-            nb1__iexact=nb1, 
-            ap1__iexact=ap1
-        )
-        if nb2:
-            duplicado_nombre = duplicado_nombre.filter(nb2__iexact=nb2)
-        else:
-            duplicado_nombre = duplicado_nombre.filter(Q(nb2__isnull=True) | Q(nb2=''))
-        if ap2:
-            duplicado_nombre = duplicado_nombre.filter(ap2__iexact=ap2)
-        else:
-            duplicado_nombre = duplicado_nombre.filter(Q(ap2__isnull=True) | Q(ap2=''))
-        if self.instance.pk:
-            duplicado_nombre = duplicado_nombre.exclude(pk=self.instance.pk)
-        if duplicado_nombre.exists():
-            raise forms.ValidationError(
-                f"Ya existe un paciente registrado como '{nb1} {ap1}'. Por favor verifique en el buscador."
-            )
 
         return cleaned_data

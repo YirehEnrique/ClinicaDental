@@ -146,7 +146,9 @@
                                 <!-- Formulario para reprogramar -->
                                 <form method="POST">
                                     {% csrf_token %}
-
+                                    <input type="hidden" name="paciente" value="{{ cita.paciente.id }}">
+                                    <input type="hidden" name="dentista" value="{{ cita.dentista.id }}">
+                                    <input type="hidden" name="tipo_cita" value="{{ cita.tipo_cita.id }}">
                                     <!-- Campo oculto para el ID de la cita -->
                                     <input type="hidden" name="cita_id"
                                         id="cita_id" value="{{ cita.id }}">
