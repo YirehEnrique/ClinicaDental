@@ -291,8 +291,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                            </form>
-                        </div>
+                                        </form>
+                                    </div>
                                     <div class="modal-footer">
                                         <button type="button"
                                             class="btn btn-secondary"
@@ -320,58 +320,125 @@
                             </div>
                             <div class="modal-body">
                                 <!-- Formulario para reprogramar -->
-                                <form method="POST">
-                                    {% csrf_token %}
+                                    <div class="container-fluid p-0">
+                                        <div class="row g-3"> <div class="col-12 col-lg-5">
+                                                <div class="card shadow-sm border-0 bg-light h-100"> 
+                                                    <div class="card-body">
+                                                        
+                                                        <div class="d-flex align-items-center mb-3 border-bottom pb-3">
+                                                            <div>
+                                                                <h5 class="mb-0 text-dark">
+                                                                    {{ c.nb1 }} {{ c.ap1 }}
+                                                                </h5>
+                                                            </div>
+                                                        </div>
 
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            {{ c.nb1}}
-                                            {% if c.nb2 %}{{ c.nb2 }}{% endif %}
-                                            {{ c.ap1 }}
-                                            {% if c.ap2 %}{{ c.ap2 }}{% endif %}
-                                        </div>
-                                        <div class="col-12">
-                                            <h6 class="pb-1 fs-5">Citas</h6>
-                                            <ul>
-                                                {% for cita in cita %}
-                                                    {% if cita.paciente.id == c.id %}
-                                                        <li>
-                                                            {{ cita.fecha }} - {{ cita.get_estado_cita_display }}
-                                                        </li>
-                                                    {% endif %}
-                                                {% empty %}
-                                                    <li>No hay citas registradas.</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="text-muted small fw-bold text-uppercase">Teléfono</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-telephone me-2 text-secondary"></i>
+                                                                <span class="fw-medium">{{ c.telefono|default:"Sin teléfono" }}</span>
+                                                            </div>
+                                                        </div>
 
-                                    <div class="modal-footer">
-                                        <button type="button"
-                                            class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="submit" name="accion"
-                                            value="editar"
-                                            class="btn btn-primary">Editar</button>
+                                                        <div class="mb-3">
+                                                            <label class="text-muted small fw-bold text-uppercase">Correo</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-envelope me-2 text-secondary"></i>
+                                                                <span class="fw-medium text-truncate">{{ c.correo|default:"Sin correo" }}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <label class="text-muted small fw-bold text-uppercase">Sexo</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-gender-ambiguous me-2 text-secondary"></i>
+                                                                <span>{{ c.get_sexo_display }}</span>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 col-lg-7">
+                                                <div class="card shadow-sm border-0 h-100">
+                                                    
+                                                    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                                        <h6 class="mb-0 fw-bold text-primary">
+                                                            <i class="bi bi-calendar-week me-2"></i>Historial de Citas
+                                                        </h6>
+                                                        <span class="badge bg-primary rounded-pill">{{ c.cita_set.count }}</span>
+                                                    </div>
+
+                                                    <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                                                        
+                                                        <div class="list-group list-group-flush">
+                                                            {% for cita in c.cita_set.all %}
+                                                                <div class="list-group-item list-group-item-action py-3">
+                                                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                                                        
+                                                                        <div>
+                                                                            <h6 class="mb-1 fw-bold text-dark">
+                                                                                {{ cita.fecha|date:"d M Y" }}
+                                                                            </h6>
+                                                                            <small class="text-muted">
+                                                                                <i class="bi bi-clock me-1"></i>{{ cita.hora|time:"h:i a" }}
+                                                                            </small>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            {% if cita.estado_cita.id == 1 %} <span class="badge bg-warning text-dark border border-warning-subtle">
+                                                                                    <i class="bi bi-hourglass-split me-1"></i>Pendiente
+                                                                                </span>
+                                                                            {% elif cita.estado_cita.id == 2 %} <span class="badge bg-success border border-success-subtle">
+                                                                                    <i class="bi bi-check-lg me-1"></i>Lista
+                                                                                </span>
+                                                                            {% elif cita.estado_cita.id == 3 %} <span class="badge bg-danger border border-danger-subtle">
+                                                                                    <i class="bi bi-x-lg me-1"></i>Cancelada
+                                                                                </span>
+                                                                            {% endif %}
+                                                                        </div>
+
+                                                                    </div>
+                                                                    </div>
+                                                            {% empty %}
+                                                                <div class="text-center py-5">
+                                                                    <i class="bi bi-calendar-x text-muted fs-1 opacity-25"></i>
+                                                                    <p class="text-muted small mt-2">Este paciente no tiene citas registradas.</p>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
-                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
-            </div>
-            <div class="pagination justify-content-center mt-3 m-2">
-                {% if page_obj.has_previous %}
-                    <a class="btn btn-outline-primary bi bi-caret-left-fill me-1" href="?page={{ page_obj.previous_page_number }}&q={{ q }}"></a>
-                {% elif not page_obj.has_previous %}    
-                    <span class="btn bi bi-caret-left-fill disabled me-1"></span>
-                {% endif %}
-                <span class="btn btn-sm disabled align-items-end">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-                {% if page_obj.has_next %}
-                    <a class="btn btn-outline-primary bi bi-caret-right-fill ms-1" href="?page={{ page_obj.next_page_number }}&q={{ q }}"></a>
-                {% elif not page_obj.has_next %}    
-                    <span class="btn bi bi-caret-right-fill disabled ms-1"></span>
-                {% endif %}
+                <div class="pagination justify-content-center mt-3 m-2">
+                    {% if page_obj.has_previous %}
+                        <a class="btn btn-outline-primary bi bi-caret-left-fill me-1" href="?page={{ page_obj.previous_page_number }}&q={{ q }}"></a>
+                    {% elif not page_obj.has_previous %}    
+                        <span class="btn bi bi-caret-left-fill disabled me-1"></span>
+                    {% endif %}
+                    <span class="btn btn-sm disabled align-items-end">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                        <a class="btn btn-outline-primary bi bi-caret-right-fill ms-1" href="?page={{ page_obj.next_page_number }}&q={{ q }}"></a>
+                    {% elif not page_obj.has_next %}    
+                        <span class="btn bi bi-caret-right-fill disabled ms-1"></span>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

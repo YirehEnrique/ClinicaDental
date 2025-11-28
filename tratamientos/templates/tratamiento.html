@@ -91,15 +91,15 @@
                                 ult. mod. {{tratamientos.actualizada |date:"d-m-20y"}}
                             </span>
                         </div>
-                        <div class="text-end">
-                            <span
+                        <div class="text-end ">
+                            <!-- <span
                                 class="badge me-2 mb-2 {% if tratamientos.estado == 'T' %}text-bg-success{% elif tratamientos.estado == 'E' %}text-bg-warning{% elif tratamientos.estado == 'C' %}text-bg-danger{% endif %}">
-                                {{tratamientos.get_estado_display}}</span><br>
+                                {{tratamientos.get_estado_display}}</span><br> -->
                             <form action method="post">
                                 {% csrf_token %}
                                 <button type="button" data-bs-toggle="modal"
                                     data-bs-target="#AgregarOrdenModal{{ tratamientos.id }}"
-                                    class="btn btn-primary btn-sm">Agregar
+                                    class="btn btn-primary">Agregar
                                     orden</button>
                             </form>
                         </div>

@@ -23,7 +23,6 @@ def dentista(request):
                             messages.error(request, error)
                         else:
                             messages.error(request, f"{error}")
-
         elif accion == 'editar':
             dentista_obj = get_object_or_404(Dentista, id=dentista_id)
             form = FormDentista(request.POST, instance=dentista_obj)
@@ -38,7 +37,19 @@ def dentista(request):
                             messages.error(request, error)
                         else:
                             messages.error(request, f"{error}")
-                            
+        
+        elif accion == 'cambiar_estado':
+            dentista = get_object_or_404(Dentista, id=dentista_id)
+
+            dentista.estado = not dentista.estado 
+            dentista.save()
+            
+            # Usamos 'warning' si se desactiva para que llame la atención
+            if dentista.estado:
+                messages.success(request, f"Dentista {dentista.nb1} {dentista.ap1} activado.")
+            else:
+                messages.warning(request, f"Dentista {dentista.nb1} {dentista.ap1} desactivado.")
+
         return redirect('dentista')
 
     else:

@@ -10,6 +10,7 @@ class Dentista(models.Model):
     correo = models.EmailField(blank=True, null=True)
     sexo=models.CharField(max_length=10, choices=[('M','Masculino'),('F','Femenino')])
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    estado=models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.nb1} {self.ap1}"

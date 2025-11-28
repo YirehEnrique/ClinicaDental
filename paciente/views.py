@@ -44,34 +44,34 @@ def paciente(request):
     else:
         form = Formpaciente()
         
-    q = request.GET.get('q', '').strip()
-    pacientes = Paciente.objects.all().order_by('-id').prefetch_related(
-        'cita_set', 
-        'cita_set__estado_cita',
-        'plantratamiento_set',
-        'plantratamiento_set__tratamiento'
-    )
-
-    if q:
-        pacientes = pacientes.filter(
-            Q(nb1__icontains=q) | 
-            Q(nb2__icontains=q) | 
-            Q(ap1__icontains=q) | 
-            Q(ap2__icontains=q) | 
-            Q(telefono__icontains=q) | 
-            Q(correo__icontains=q)
+        q = request.GET.get('q', '').strip()
+        pacientes = Paciente.objects.all().order_by('-id').prefetch_related(
+            'cita_set', 
+            'cita_set__estado_cita',
+            'plantratamiento_set',
+            'plantratamiento_set__tratamiento'
         )
 
-    paginator = Paginator(pacientes, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+        if q:
+            pacientes = pacientes.filter(
+                Q(nb1__icontains=q) | 
+                Q(nb2__icontains=q) | 
+                Q(ap1__icontains=q) | 
+                Q(ap2__icontains=q) | 
+                Q(telefono__icontains=q) | 
+                Q(correo__icontains=q)
+            )
 
-    context = {
-        'form': form, 
-        'page_obj': page_obj, 
-        'q': q,
-        'cita': Cita.objects.all(),
-        'tratamiento': PlanTratamiento.objects.all(),
-    }
+        paginator = Paginator(pacientes, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
-    return render(request, 'paciente.html', context)
+        context = {
+            'form': form, 
+            'page_obj': page_obj, 
+            'q': q,
+            'cita': Cita.objects.all(),
+            'tratamiento': PlanTratamiento.objects.all(),
+        }
+
+        return render(request, 'paciente.html', context)

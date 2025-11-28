@@ -126,6 +126,7 @@
                                 <th>Teléfono</th>
                                 <th>Sexo</th>
                                 <th>Correo</th>
+                                <th>Estado</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -142,13 +143,23 @@
                                 <td>{{ c.get_sexo_display }}</td>
                                 {# etiqueta legible del choice #}
                                 <td>{% if c.correo %}{{ c.correo }}{% else %}—{% endif %}</td>
+                                <td>{% if c.estado %}Activo{% else %}Inactivo{% endif %}</td>
                                 <td>
-                                    <button class="bg-primary-subtle"
-                                    type="button"
-                                    title="Editar"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editarModal{{ c.id }}">
-                                    <i class="bi bi-pencil-square"></i></button>
+                                    <div class="btn-group">
+                                        <button class="bg-primary-subtle"
+                                        type="button"
+                                        title="Editar"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editarModal{{ c.id }}">
+                                        <i class="bi bi-pencil-square"></i></button>
+                                        <button class="bg-danger-subtle"
+                                        type="button"
+                                        title="Eliminar"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cambiar_estadoModal{{ c.id }}">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             {% empty %}
@@ -298,7 +309,42 @@
                             </div>
                         </div>
                     </div>
-                
+                    <!-- Modal Eliminar  -->
+                <div class="modal fade" id="cambiar_estadoModal{{ c.id }}"
+                    tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <i class="bi bi-arrow-clockwise fs-3"></i>
+                                <h5 class="modal-title"
+                                    id="cambiar_estadoModalLabel">Cambiar Estado Dentista</h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="fs-5">¿Estás seguro de que deseas cambiar el estado del dentista
+                                    <strong>{{ c.nb1 }} {% if c.nb2 %}{{ c.nb2 }} {% endif %}{{ c.ap1 }} {% if c.ap2 %}{{ c.ap2 }}{% endif %}</strong>?
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <!-- Campo oculto para el ID del dentista -->
+                                    <input type="hidden" name="dentista_id"
+                                        id="dentista_id" value="{{ c.id }}">
+                                    <button type="submit" name="accion"
+                                        value="cambiar_estado"
+                                        class="btn btn-danger">Cambiar Estado</button>
+                                        <button type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </form>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
                 <div class="pagination justify-content-center mt-3 m-2">
                     {% if page_obj.has_previous %}

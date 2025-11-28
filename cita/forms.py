@@ -51,6 +51,8 @@ class FormCita(forms.ModelForm):
         self.fields['fecha'].initial = timezone.now().date()
         self.fields['dentista'].empty_label = None
 
+        self.fields['dentista'].queryset = self.fields['dentista'].queryset.filter(estado=True)
+
     def save(self, commit=True):
         obj = super().save(commit=False)
         if self.cleaned_data.get('estado_cita') is None:
