@@ -5,7 +5,7 @@ from django.db.models import Q
 class FormDentista(forms.ModelForm):
     class Meta:
         model = Dentista
-        fields = ['nb1', 'nb2', 'ap1', 'ap2', 'telefono', 'correo', 'sexo']
+        fields = ['nb1', 'nb2', 'ap1', 'ap2', 'telefono', 'correo', 'sexo','cedula']
 
         labels = {
             'nb1': 'Primer Nombre',
@@ -15,6 +15,7 @@ class FormDentista(forms.ModelForm):
             'telefono': 'Teléfono',
             'correo': 'Correo Electrónico',
             'sexo': 'Sexo',
+            'cedula': 'Cédula',
         }
 
         widgets = {
@@ -33,6 +34,7 @@ class FormDentista(forms.ModelForm):
             }),
             'correo': forms.EmailInput(attrs={'class': 'form-control', 'id': 'input-correo'}),
             'sexo': forms.Select(attrs={'class': 'form-select', 'id': 'input-sexo'}),
+            'cedula': forms.TextInput(attrs={'class': 'form-control', 'id': 'input-cedula'}),
         }
 
     def clean(self):
@@ -48,6 +50,7 @@ class FormDentista(forms.ModelForm):
         
         telefono = cleaned_data.get('telefono')
         correo = cleaned_data.get('correo')
+        cedula= cleaned_data.get('cedula')
 
         if telefono:
             duplicado_tel = Dentista.objects.filter(telefono=telefono)
@@ -64,6 +67,14 @@ class FormDentista(forms.ModelForm):
             
             if duplicado_mail.exists():
                 self.add_error('correo', f"El correo {correo} ya pertenece a otro dentista.")
+        
+        if cedula:
+            duplicado_cedula = Dentista.objects.filter(cedula=cedula)
+            if self.instance.pk:
+                duplicado_cedula = duplicado_cedula.exclude(pk=self.instance.pk)
+            
+            if duplicado_cedula.exists():
+                self.add_error('cedula', f"La cédula {cedula} ya está registrada con otro dentista.")
 
         query_nombre = Q(nb1__iexact=nb1) & Q(ap1__iexact=ap1)
 
@@ -88,3 +99,35 @@ class FormDentista(forms.ModelForm):
             )
 
         return cleaned_data
+    def clean_cedula(self):
+        # 1. Obtener el dato y convertir a mayúsculas
+        cedula = self.cleaned_data.get('cedula', '').upper()
+        
+        # 2. Limpieza: Quitar guiones y espacios vacíos
+        cedula_limpia = cedula.replace('-', '').replace(' ', '')
+
+        # 3. Validación de Longitud (Deben quedar 14 caracteres exactos)
+        if len(cedula_limpia) != 14:
+            raise forms.ValidationError("La cédula debe tener 14 caracteres (13 números y 1 letra).")
+
+        # 4. Validación de Estructura (13 números + 1 Letra)
+        numeros = cedula_limpia[:13] # Los primeros 13
+        letra = cedula_limpia[13]    # El último
+
+        if not numeros.isdigit():
+            raise forms.ValidationError("Los primeros 13 caracteres deben ser números.")
+        
+        if not letra.isalpha():
+            raise forms.ValidationError("El último carácter debe ser una letra.")
+
+        # 5. (Opcional) Validación de duplicados
+        # Si quieres evitar que dos personas tengan la misma cédula
+        existe = Dentista.objects.filter(cedula=cedula_limpia) # O usa Dentista.objects si es para dentistas
+        if self.instance.pk:
+            existe = existe.exclude(pk=self.instance.pk)
+            
+        if existe.exists():
+            raise forms.ValidationError("Esta cédula ya está registrada en el sistema.")
+
+        # Retornamos la cédula limpia (sin guiones) para que se guarde estandarizada
+        return cedula_limpia

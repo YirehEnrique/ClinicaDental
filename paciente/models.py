@@ -17,6 +17,11 @@ class Paciente(models.Model):
     correo = models.EmailField(blank=True, null=True)
     sexo=models.CharField(max_length=10, choices=[('M','Masculino'),('F','Femenino')])
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    cedula=models.CharField(
+        max_length=16,
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return f"{self.nb1} {self.ap1}"

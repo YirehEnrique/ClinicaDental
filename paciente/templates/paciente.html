@@ -53,6 +53,13 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-12">
+                            <div class="mb-2">
+                                <label for="{{ form.cedula.id_for_label}}"
+                                    class="form-label">Cédula</label>
+                                {{ form.cedula }}
+                            </div>
+                    </div>
                     <hr>
                     <h6 class="pb-1 fs-5">Contacto</h6>
                     <div class="row">
@@ -123,7 +130,7 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Teléfono</th>
-                                <th>Sexo</th>
+                                <th>Cedula</th>
                                 <th>Correo</th>
                                 <th></th>
                             </tr>
@@ -138,7 +145,7 @@
                                     {% if c.ap2 %}{{ c.ap2 }}{% endif %}
                                 </td>
                                 <td>{% if c.telefono %}{{ c.telefono }}{% else %}—{% endif %}</td>
-                                <td>{{ c.get_sexo_display }}</td>
+                                <td>{{ c.cedula }}</td>
                                 <td>{% if c.correo %}{{ c.correo }}{% else %}—{% endif %}</td>
                                 <td>
                                     <div class="btn-group">
@@ -185,10 +192,8 @@
                             aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <!-- Formulario para reprogramar -->
                             <form method="POST">
                                 {% csrf_token %}
-                                        <!-- Campo oculto para el ID del paciente -->
                                         <input type="hidden" name="paciente_id"
                                             id="paciente_id" value="{{ c.id }}">
                                             <div class="card shadow-sm">
@@ -234,6 +239,24 @@
                                                                 <input type="text"  name="ap2" id="ap2" class="form-control" value="{% if c.ap2 %}{{c.ap2}}{% endif %}"></textarea>
                                                             </div>
                                                         </div>
+                                                        <div class="col-12">
+                                                            <div class="mb-2">
+                                                            <label for="cedula" class="form-label">Cédula</label>
+                                                            <input type="text" 
+                                                                name="cedula" 
+                                                                id="cedula" 
+                                                                class="form-control"
+                                                                maxlength="14" 
+                                                                minlength="14"
+                                                                placeholder="0012005900000A"
+                                                                style="text-transform: uppercase;"
+                                                                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+                                                                pattern="[0-9]{13}[A-Z]{1}"
+                                                                title="Debe tener 13 números y terminar con 1 letra (Ej: 0012005900000A)"
+                                                                value="{{ c.cedula|default:'' }}"
+                                                            ></input>
+                                                        </div>
+                                                    </div>
                                                     </div>
                                                     <hr>
                                                     <h6 class="pb-1 fs-5">Contacto</h6>
@@ -319,7 +342,6 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <!-- Formulario para reprogramar -->
                                     <div class="container-fluid p-0">
                                         <div class="row g-3"> <div class="col-12 col-lg-5">
                                                 <div class="card shadow-sm border-0 bg-light h-100"> 
@@ -346,6 +368,14 @@
                                                             <div class="d-flex align-items-center">
                                                                 <i class="bi bi-envelope me-2 text-secondary"></i>
                                                                 <span class="fw-medium text-truncate">{{ c.correo|default:"Sin correo" }}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="text-muted small fw-bold text-uppercase">Cedula</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-telephone me-2 text-secondary"></i>
+                                                                <span class="fw-medium">{{ c.cedula|default:"Sin cedula" }}</span>
                                                             </div>
                                                         </div>
 
