@@ -37,6 +37,7 @@ def tratamiento(request):
                         
         elif accion == 'guardarItem':
             tratamiento_id=request.POST.get('tratamiento_id')
+            print(request.POST)
             plan_tratamiento= get_object_or_404(PlanTratamiento, id=tratamiento_id)
             formItem=FormPlanItems(request.POST)
     

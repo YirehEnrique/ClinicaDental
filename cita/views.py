@@ -8,7 +8,34 @@ from .models import EstadoCita
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
+import pywhatkit
+import datetime
+import threading
+import time
+
+
+from email.message import EmailMessage
+import ssl
+import smtplib
+
+import logging
+from django.contrib import messages
 # Create your views here.
+
+def enviar_whatsapp_async(telefono, mensaje):
+    def task():
+        try:
+            import pywhatkit
+            pywhatkit.sendwhatmsg_instantly(
+                telefono,
+                mensaje,
+                wait_time=25,     
+                tab_close=True    
+            )
+        except Exception as e:
+            print("Error al enviar WhatsApp:", e)
+
+    threading.Thread(target=task).start()
 
 @login_required
 def cita(request):
@@ -36,6 +63,11 @@ def cita(request):
     paginator = Paginator(citas, 4)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    #Sección de horas y minutos
+    hours = list(range(0, 24))                  
+    minutes = list(range(0, 60))#["00","5","10","15","20","25","30","35","40","45","50","55"]
+
 
     if request.method == 'POST':
         form = FormCita(request.POST)
@@ -83,6 +115,56 @@ def cita(request):
             
             return redirect('cita')
 
+        elif accion == 'agendar_notificacion':
+            #Partes generales
+            cita = Cita.objects.get(id=cita_id)
+            metodo = request.POST.get('metodo')
+            paciente = cita.paciente
+            email = paciente.correo
+            telefono = "+505" + paciente.telefono
+            
+            #Para el WhatsApp
+            hora = int(request.POST.get('hora'))           
+            minutos = int(request.POST.get('minutos'))
+            fecha_post = request.POST.get('fecha')    
+            fecha_text = cita.fecha.strftime("%d de %B de %Y") if cita.fecha else (fecha_post or "")
+            
+            #Para el Correo
+            PASSWORD = "xotn bvly wdjj anjl"
+            email_sender = "enriquemedina880@gmail.com"
+            email_reciver = email
+            subject= "Recordatorio de Cita Dental"
+            #hora_display_correo = f"{hora:02d}:{minutos:02d}"
+            body = f"Recordatorio: Su cita está agendada para el {fecha_text} para las {cita.hora}"
+
+            if metodo == "correo":
+                em = EmailMessage()
+                em["From"] = email_sender
+                em["To"] = email_reciver
+                em["Subject"] = subject
+                em.set_content(body)
+                context_email = ssl.create_default_context()
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465, context= context_email) as smtp:
+                    smtp.login(email_sender, PASSWORD)
+                    smtp.sendmail(email_sender, email_reciver,em.as_string())
+                
+                pass  
+
+            elif metodo == "whatsapp":
+                mensaje = f"Recordatorio: Su cita está agendada para el {fecha_text} a las {cita.hora}. Clínica Dental."
+                
+                ahora = datetime.datetime.now()
+                if hora < ahora.hour or (hora == ahora.hour and minutos <= ahora.minute):
+                    # mínimo 2 minutos en el futuro
+                    hora  = ahora.hour 
+                    minutos = (ahora.minute + 2) % 60
+                try: 
+                    #minutos = hora.minute
+                    enviar_whatsapp_async(telefono, mensaje)
+                    #pywhatkit.sendwhatmsg(telefono, mensaje, hora, minutos, 5)
+                except Exception as e:
+                    messages.error(request, f"No fue posible enviar WhatsApp: {e}")
+                pass  
         
         return redirect(f"/cita?fecha={fechas}&estado={estado}&page={page_obj.number}")
     else:
@@ -95,6 +177,8 @@ def cita(request):
         'dentistas': Dentista.objects.all(),
         'estado': estado,
         'fechas': fechas,
+        'hours': hours,
+        'minutes': minutes,
     }
     return render(request, 'cita.html', context)
 
