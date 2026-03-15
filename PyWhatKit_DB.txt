@@ -1,0 +1,30 @@
+Date: 28/11/2025
+Time: 7:13
+Phone Number: +50555667788
+Message: Recordatorio: Su cita está agendada para el 28 de November de 2025 a las 11:00:00. Clínica Dental.
+--------------------
+Date: 28/11/2025
+Time: 7:14
+Phone Number: +50555667788
+Message: Recordatorio: Su cita está agendada para el 28 de November de 2025 a las 11:00:00. Clínica Dental.
+--------------------
+Date: 28/11/2025
+Time: 8:10
+Phone Number: +50558163887
+Message: Recordatorio: Su cita está agendada para el 28 de November de 2025 a las 01:00:00. Clínica Dental.
+--------------------
+Date: 28/11/2025
+Time: 9:14
+Phone Number: +50558163887
+Message: Recordatorio: Su cita está agendada para el 28 de November de 2025 a las 01:00:00. Clínica Dental.
+--------------------
+Date: 28/11/2025
+Time: 9:15
+Phone Number: +50558163887
+Message: Recordatorio: Su cita está agendada para el 28 de November de 2025 a las 01:00:00. Clínica Dental.
+--------------------
+Date: 10/3/2026
+Time: 19:23
+Phone Number: +50558163887
+Message: Recordatorio: Su cita está agendada para el 28 de November de 2025 a las 01:00:00. Clínica Dental.
+--------------------

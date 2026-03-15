@@ -86,13 +86,15 @@
                             <div>
                                 <span class="text-muted small">
                                     {{ cita.fecha | date:"d-m-20y" }} ·
-                                    {{ cita.hora }}
+                                    {{ cita.hora | time:"h:i a" }}
                                 </span>
                             </div>
                             <div><strong>{{ cita.paciente }}</strong>
                                 — {{cita.tipo_cita}}</div>
-                            <div><span class="text-muted small">Dra.
-                                    {{ cita.dentista }}</span></div>
+                                {% if cita.dentista %}
+                                <div><span class="text-muted small">Dt.
+                                    {{ cita.dentista}}</span></div>
+                                {% endif %}
                         </div>
                         <div class="text-end">
                             <span
@@ -122,6 +124,11 @@
                                         title="Cancelar" data-bs-toggle="modal"
                                         data-bs-target="#cancelModal{{ cita.id }}"><i
                                             class="bi bi-x-lg"></i></button>
+                                    <button class="btn btn-outline-warning"
+                                        type="button"
+                                        title="Notificacion" data-bs-toggle="modal"
+                                        data-bs-target="#notiModal{{ cita.id }}"><i
+                                        class="bi bi-bell"></i></button>
                                 </div>
                             </form>
                         </div>
@@ -146,7 +153,9 @@
                                 <!-- Formulario para reprogramar -->
                                 <form method="POST">
                                     {% csrf_token %}
-
+                                    <input type="hidden" name="paciente" value="{{ cita.paciente.id }}">
+                                    <input type="hidden" name="dentista" value="{{ cita.dentista.id }}">
+                                    <input type="hidden" name="tipo_cita" value="{{ cita.tipo_cita.id }}">
                                     <!-- Campo oculto para el ID de la cita -->
                                     <input type="hidden" name="cita_id"
                                         id="cita_id" value="{{ cita.id }}">
@@ -244,8 +253,83 @@
                     </div>
                 </div>
 
+                <!-- Modal Notificación -->
+                <div class="modal fade" id="notiModal{{ cita.id }}"
+                    tabindex="-1"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="notifModalLabel">Enviar Notificación por</h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+
+                            <form action method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="cita_id" value="{{cita.id}}">
+
+                                <div class="modal-body">
+                                    Seleccione Método de Recordatorio
+                                    <div class="form-check">
+                                        <input  class="form-check-input metodo-radio" type="radio" name="metodo" 
+                                        value="correo" id="correo{{ cita.id }}" data-cita-id="{{ cita.id }}" required>
+                                        <label class="form-check-label" for="correo{{ cita.id }}">
+                                            Correo electrónico ({{ cita.paciente.correo }})
+                                        </label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input  class="form-check-input metodo-radio" type="radio" name="metodo" 
+                                        value="whatsapp" id="whatsapp{{ cita.id }}" data-cita-id="{{ cita.id }}">
+                                        <label class="form-check-label" for="whatsapp{{ cita.id }}">
+                                            WhatsApp ({{ cita.paciente.telefono }})
+                                        </label>
+                                    </div>
+                                </div>
+                                <!-- Opciones siempre visibles -->
+                                <div class="mt-3 p-2 border rounded">
+                                    <strong>Cita del {{ cita.fecha|date:"j 'de' F" }}</strong>
+
+                                    <label class="form-label mt-2">Hora</label>
+                                    <select name="hora" class="form-select">
+                                    {% for h in hours %}
+                                        <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                    <label class="form-label mt-2">Minutos</label>
+                                    <select name="minutos" class="form-select">
+                                    {% for m in minutes %}
+                                        <option value="{{ m }}">{{ m }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                    <input type="hidden" name="fecha" value="{{ cita.fecha }}">
+                                </div>
+
+                            
+                                <div class="modal-footer">
+                                    <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit"
+                                        class="btn btn-primary"
+                                        name="accion" value="agendar_notificacion"
+                                        id="agendarBtn{{ cita.id }}">Agendar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
                 {% endfor %}
             </div>
+            
+
             <!-- Paginación -->
             <div class="pagination justify-content-center mt-3 m-2">
                 {% if page_obj.has_previous %}

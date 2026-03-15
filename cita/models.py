@@ -24,7 +24,7 @@ class Cita(models.Model):
     hora = models.TimeField(default="10:00")
     notas = models.TextField(blank=True, null=True)
     paciente = models.ForeignKey(Paciente,default=1, on_delete=models.CASCADE)
-    dentista = models.ForeignKey(Dentista, default=None ,on_delete=models.SET_NULL,null=True,blank=True)
+    dentista = models.ForeignKey(Dentista, default=1 ,on_delete=models.SET_NULL,null=True,blank=True)
     tipo_cita = models.ForeignKey(TipoCita,default=1, on_delete=models.CASCADE)
     estado_cita = models.ForeignKey(EstadoCita, default=1, on_delete=models.CASCADE)
     creada = models.DateTimeField(default=timezone.now)

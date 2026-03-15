@@ -29,10 +29,10 @@ class FormPlanTratamiento(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['estado'].required = False
         self.fields['estado'].initial = 'E'
+        self.fields['dentista'].queryset = self.fields['dentista'].queryset.filter(estado=True)
 
     def clean(self):
         cleaned_data = super().clean()
-        # 1. Recuperamos los datos que el usuario seleccionó
         paciente = cleaned_data.get('paciente')
         tipo_tratamiento = cleaned_data.get('tratamiento')
 
@@ -55,11 +55,6 @@ class FormPlanTratamiento(forms.ModelForm):
             obj.save()
         return obj
 
-    def save(self, commit=True):
-        obj = super().save(commit=False)
-        if commit:
-            obj.save()
-        return obj
 
 class FormPlanItems(forms.ModelForm):
     class Meta:

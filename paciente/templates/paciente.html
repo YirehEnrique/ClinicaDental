@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row g-2">
+<div class="row g-3">
     <div class="col-12 col-lg-4">
         <form action method="POST">
             {% csrf_token %}
@@ -42,6 +42,7 @@
                                         class="text-danger">*</span>
                                     {% endif %}</label>
                                 {{ form.ap1 }}
+                                a
                             </div>
                         </div>
                         <div class="col-6">
@@ -52,6 +53,13 @@
                                 {{ form.ap2 }}
                             </div>
                         </div>
+                    </div>
+                    <div class="col-12">
+                            <div class="mb-2">
+                                <label for="{{ form.cedula.id_for_label}}"
+                                    class="form-label">Cédula</label>
+                                {{ form.cedula }}
+                            </div>
                     </div>
                     <hr>
                     <h6 class="pb-1 fs-5">Contacto</h6>
@@ -123,7 +131,7 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Teléfono</th>
-                                <th>Sexo</th>
+                                <th>Cedula</th>
                                 <th>Correo</th>
                                 <th></th>
                             </tr>
@@ -138,16 +146,24 @@
                                     {% if c.ap2 %}{{ c.ap2 }}{% endif %}
                                 </td>
                                 <td>{% if c.telefono %}{{ c.telefono }}{% else %}—{% endif %}</td>
-                                <td>{{ c.get_sexo_display }}</td>
+                                <td>{{ c.cedula }}</td>
                                 <td>{% if c.correo %}{{ c.correo }}{% else %}—{% endif %}</td>
                                 <td>
-                                    <button class="bg-primary-subtle"
-                                    type="button"
-                                    title="Editar"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editarModal{{ c.id }}">
-                                    <i class="bi bi-pencil-square"></i></button>
-                                </td>
+                                    <div class="btn-group">
+                                        <button class="bg-primary-subtle"
+                                        type="button"
+                                        title="Editar"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editarModal{{ c.id }}">
+                                        <i class="bi bi-pencil-square"></i></button>
+                                        <button class="bg-danger-subtle"
+                                        type="button"
+                                        title="cartilla"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#cartillaModal{{ c.id }}">
+                                        <i class="bi bi-collection"></i></button>
+                                    </div>
+                                </td>                                
                             </tr>
                             {% empty %}
                             <tr>
@@ -161,9 +177,159 @@
                     </table>
                 </div>
 
-                {% for c in pacientes %}
+                {% for c in page_obj %}
                 <!--Modal Editar-->
                 <div class="modal fade" id="editarModal{{ c.id }}"
+                tabindex="-1"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <i class="bi bi-pencil-fill fs-3 me-2 text-primary"></i>
+                            <h5 class="modal-title"
+                            id="reprogramarModalLabel">Editar cliente</h5>
+                            <button type="button" class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                        <input type="hidden" name="paciente_id"
+                                            id="paciente_id" value="{{ c.id }}">
+                                            <div class="card shadow-sm">
+                                                <div class="card-body">
+                                                    <h6 class="pb-1 fs-5">Identificación</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="nb1"
+                                                                    class="form-label">Primer Nombre
+                                                                    {% if form.nb1.field.required %}<span
+                                                                        class="text-danger">*</span>
+                                                                    {% endif %}</label>
+                                                                <input type="text" name="nb1" id="nb1" class="form-control" value="{{c.nb1}}"></input>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="nb2"
+                                                                    class="form-label">Segundo
+                                                                    Nombre</label>
+                                                                <input type="text"  name="nb2" id="nb2" class="form-control" value="{% if c.nb2 %}{{c.nb2}}{% endif %}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="ap1"
+                                                                    class="form-label">Primer Apellido
+                                                                    {% if form.ap1.field.required %}<span
+                                                                        class="text-danger">*</span>
+                                                                    {% endif %}</label>
+                                                                <input type="text"  name="ap1" id="ap1" class="form-control" value="{{c.ap1}}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label for="ap2"
+                                                                    class="form-label">Segundo
+                                                                    Apellido</label>
+                                                                <input type="text"  name="ap2" id="ap2" class="form-control" value="{% if c.ap2 %}{{c.ap2}}{% endif %}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div class="mb-2">
+                                                            <label for="cedula" class="form-label">Cédula</label>
+                                                            <input type="text" 
+                                                                name="cedula" 
+                                                                id="cedula" 
+                                                                class="form-control"
+                                                                maxlength="14" 
+                                                                minlength="14"
+                                                                placeholder="0012005900000A"
+                                                                style="text-transform: uppercase;"
+                                                                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+                                                                pattern="[0-9]{13}[A-Z]{1}"
+                                                                title="Debe tener 13 números y terminar con 1 letra (Ej: 0012005900000A)"
+                                                                value="{{ c.cedula|default:'' }}"
+                                                            ></input>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                    <hr>
+                                                    <h6 class="pb-1 fs-5">Contacto</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="mb-2">
+                                                                <label
+                                                                    for="telefono"
+                                                                    class="form-label">Telefono
+                                                                </label>
+                                                                <input 
+                                                                    type="tel" 
+                                                                    name="telefono" 
+                                                                    id="telefono" 
+                                                                    class="form-control" 
+                                                                    value="{{ c.telefono|default:'' }}" 
+                                                                    maxlength="8"
+                                                                    minlength="8"
+                                                                    pattern="[0-9]{8}"
+                                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                                    ></input>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="mb-3">
+                                                                <label for="sexo"
+                                                                    class="form-label">
+                                                                    {{ form.sexo.label }}
+                                                                    {% if form.sexo.field.required %}
+                                                                    <span class="text-danger">*</span>
+                                                                    {% endif %}
+                                                                </label>
+                                                                <select name="sexo" id="sexo" class="form-control" >
+                                                                    <option value="M" {% if c.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                                                                    <option value="F" {% if c.sexo == 'F' %}selected{% endif %}>Femenino</option>
+                                                                </select> 
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-2">|
+                                                        <label for="correo"
+                                                            class="form-label">Correo
+                                                        </label>
+                                                        <input 
+                                                            type="email" 
+                                                            name="correo" 
+                                                            id="correo" 
+                                                            class="form-control" 
+                                                            value="{{ c.correo|default:'' }}" 
+                                                            maxlength="254"
+                                                            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+                                                            title="Introduce un formato válido: ejemplo@dominio.com"
+                                                            oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')"
+                                                            ></input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cerrar</button>
+                                            <button type="submit" name="accion"
+                                                value="editar"
+                                                class="btn btn-primary">Editar</button>
+                                        </div>
+                                        </form>
+                            </div>
+                        </div>
+                    </div>
+                <!--Modal cartilla-->
+                <div class="modal fade" id="cartillaModal{{ c.id }}"
                     tabindex="-1"
                     aria-hidden="true">
                     <div class="modal-dialog">
@@ -171,133 +337,125 @@
                             <div class="modal-header">
                                 <i class="bi bi-pencil-fill fs-3 me-2 text-primary"></i>
                                 <h5 class="modal-title"
-                                    id="reprogramarModalLabel">Editar cliente</h5>
+                                    id="cartillaModalLabel">Cartilla Cliente</h5>
                                 <button type="button" class="btn-close"
                                     data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <!-- Formulario para reprogramar -->
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    <!-- Campo oculto para el ID del paciente -->
-                                    <input type="hidden" name="paciente_id"
-                                        id="paciente_id" value="{{ c.id }}">
-                                        <div class="card shadow-sm">
-                                            <div class="card-body">
-                                                <h6 class="pb-1 fs-5">Identificación</h6>
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="nb1"
-                                                                class="form-label">Primer Nombre
-                                                                {% if form.nb1.field.required %}<span
-                                                                    class="text-danger">*</span>
-                                                                {% endif %}</label>
-                                                            <input type="text" name="nb1" id="nb1" class="form-control" value="{{c.nb1}}"></input>
+                                    <div class="container-fluid p-0">
+                                        <div class="row g-3"> <div class="col-12 col-lg-5">
+                                                <div class="card shadow-sm border-0 bg-light h-100"> 
+                                                    <div class="card-body">
+                                                        
+                                                        <div class="d-flex align-items-center mb-3 border-bottom pb-3">
+                                                            <div>
+                                                                <h5 class="mb-0 text-dark">
+                                                                    {{ c.nb1 }} {{ c.ap1 }}
+                                                                </h5>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="nb2"
-                                                                class="form-label">Segundo
-                                                                Nombre</label>
-                                                            <input type="text"  name="nb2" id="nb2" class="form-control" value="{% if c.nb2 %}{{c.nb2}}{% endif %}"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
 
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="ap1"
-                                                                class="form-label">Primer Apellido
-                                                                {% if form.ap1.field.required %}<span
-                                                                    class="text-danger">*</span>
-                                                                {% endif %}</label>
-                                                            <input type="text"  name="ap1" id="ap1" class="form-control" value="{{c.ap1}}"></textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label for="ap2"
-                                                                class="form-label">Segundo
-                                                                Apellido</label>
-                                                            <input type="text"  name="ap2" id="ap2" class="form-control" value="{% if c.ap2 %}{{c.ap2}}{% endif %}"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <h6 class="pb-1 fs-5">Contacto</h6>
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-2">
-                                                            <label
-                                                                for="telefono"
-                                                                class="form-label">Telefono
-                                                            </label>
-                                                            <input 
-                                                                type="tel" 
-                                                                name="telefono" 
-                                                                id="telefono" 
-                                                                class="form-control" 
-                                                                value="{{ c.telefono|default:'' }}" 
-                                                                maxlength="8"
-                                                                minlength="8"
-                                                                pattern="[0-9]{8}"
-                                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                                                ></input>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
                                                         <div class="mb-3">
-                                                            <label for="sexo"
-                                                                class="form-label">
-                                                                {{ form.sexo.label }}
-                                                                {% if form.sexo.field.required %}
-                                                                <span class="text-danger">*</span>
-                                                                {% endif %}
-                                                            </label>
-                                                            <select name="sexo" id="sexo" class="form-control" >
-                                                                <option value="M" {% if c.sexo == 'M' %}selected{% endif %}>Masculino</option>
-                                                                <option value="F" {% if c.sexo == 'F' %}selected{% endif %}>Femenino</option>
-                                                            </select> 
+                                                            <label class="text-muted small fw-bold text-uppercase">Teléfono</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-telephone me-2 text-secondary"></i>
+                                                                <span class="fw-medium">{{ c.telefono|default:"Sin teléfono" }}</span>
+                                                            </div>
                                                         </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="text-muted small fw-bold text-uppercase">Correo</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-envelope me-2 text-secondary"></i>
+                                                                <span class="fw-medium text-truncate">{{ c.correo|default:"Sin correo" }}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="text-muted small fw-bold text-uppercase">Cedula</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-telephone me-2 text-secondary"></i>
+                                                                <span class="fw-medium">{{ c.cedula|default:"Sin cedula" }}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <label class="text-muted small fw-bold text-uppercase">Sexo</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="bi bi-gender-ambiguous me-2 text-secondary"></i>
+                                                                <span>{{ c.get_sexo_display }}</span>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
-                                                </div>
-                                                <div class="mb-2">|
-                                                    <label for="correo"
-                                                        class="form-label">Correo
-                                                    </label>
-                                                    <input 
-                                                        type="email" 
-                                                        name="correo" 
-                                                        id="correo" 
-                                                        class="form-control" 
-                                                        value="{{ c.correo|default:'' }}" 
-                                                        maxlength="254"
-                                                        pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
-                                                        title="Introduce un formato válido: ejemplo@dominio.com"
-                                                        oninput="this.value = this.value.toLowerCase().replace(/\s/g, '')"
-                                                        ></input>
                                                 </div>
                                             </div>
-                                        
+
+                                            <div class="col-12 col-lg-7">
+                                                <div class="card shadow-sm border-0 h-100">
+                                                    
+                                                    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                                        <h6 class="mb-0 fw-bold text-primary">
+                                                            <i class="bi bi-calendar-week me-2"></i>Historial de Citas
+                                                        </h6>
+                                                        <span class="badge bg-primary rounded-pill">{{ c.cita_set.count }}</span>
+                                                    </div>
+
+                                                    <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
+                                                        
+                                                        <div class="list-group list-group-flush">
+                                                            {% for cita in c.cita_set.all %}
+                                                                <div class="list-group-item list-group-item-action py-3">
+                                                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                                                        
+                                                                        <div>
+                                                                            <h6 class="mb-1 fw-bold text-dark">
+                                                                                {{ cita.fecha|date:"d M Y" }}
+                                                                            </h6>
+                                                                            <small class="text-muted">
+                                                                                <i class="bi bi-clock me-1"></i>{{ cita.hora|time:"h:i a" }}
+                                                                            </small>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            {% if cita.estado_cita.id == 1 %} <span class="badge bg-warning text-dark border border-warning-subtle">
+                                                                                    <i class="bi bi-hourglass-split me-1"></i>Pendiente
+                                                                                </span>
+                                                                            {% elif cita.estado_cita.id == 2 %} <span class="badge bg-success border border-success-subtle">
+                                                                                    <i class="bi bi-check-lg me-1"></i>Lista
+                                                                                </span>
+                                                                            {% elif cita.estado_cita.id == 3 %} <span class="badge bg-danger border border-danger-subtle">
+                                                                                    <i class="bi bi-x-lg me-1"></i>Cancelada
+                                                                                </span>
+                                                                            {% endif %}
+                                                                        </div>
+
+                                                                    </div>
+                                                                    </div>
+                                                            {% empty %}
+                                                                <div class="text-center py-5">
+                                                                    <i class="bi bi-calendar-x text-muted fs-1 opacity-25"></i>
+                                                                    <p class="text-muted small mt-2">Este paciente no tiene citas registradas.</p>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button"
-                                            class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="submit" name="accion"
-                                            value="editar"
-                                            class="btn btn-primary">Editar</button>
-                                    </div>
-                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
                     </div>
-                
+                </div>
                 {% endfor %}
                 <div class="pagination justify-content-center mt-3 m-2">
                     {% if page_obj.has_previous %}
