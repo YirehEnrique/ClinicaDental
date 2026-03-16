@@ -16,6 +16,8 @@ class Formpaciente(forms.ModelForm):
             'correo': 'Correo Electrónico',
             'sexo': 'Sexo',
             'cedula': 'Cédula',
+            #'es_menor': 'Menor de Edad',
+            #'fecha_nacimiento': 'Fecha Nacimiento',
         }
 
         widgets = {
@@ -42,7 +44,8 @@ class Formpaciente(forms.ModelForm):
                 'maxlength': '8',
                 'minlength': '8',
                 'pattern': '[0-9]{8}',
-                'oninput': "this.value = this.value.replace(/[^0-9]/g, '')"
+                'oninput': "this.value = this.value.replace(/[^0-9]/g, '')",
+                'placeholder': '78653344'
             }),
             'correo': forms.EmailInput(attrs={
                 'class': 'form-control',
@@ -55,7 +58,15 @@ class Formpaciente(forms.ModelForm):
             'cedula': forms.TextInput(attrs={
                 'class': 'form-control',
                 'id': 'input-cedula',
-            }),
+            })
+            #'es_menor':forms.Select(attrs={
+             #   'class': 'form-select',
+              #  'id': 'input-es-menor',
+            #}),
+            #'fecha_nacimiento':forms.DateTimeInput(attrs={
+             #   'class': 'form-control',
+              #  'type': 'datetime'
+            #})
         }
     def clean(self):
         cleaned_data = super().clean()
@@ -70,28 +81,6 @@ class Formpaciente(forms.ModelForm):
         
         telefono = cleaned_data.get('telefono')
         correo = cleaned_data.get('correo')
-
-        query_nombre = Q(nb1__iexact=nb1) & Q(ap1__iexact=ap1)
-
-        if nb2:
-            query_nombre &= Q(nb2__iexact=nb2)
-        else:
-            query_nombre &= (Q(nb2__isnull=True) | Q(nb2=''))
-
-        if ap2:
-            query_nombre &= Q(ap2__iexact=ap2)
-        else:
-            query_nombre &= (Q(ap2__isnull=True) | Q(ap2=''))
-
-        duplicado_nombre = Paciente.objects.filter(query_nombre)
-
-        if self.instance.pk:
-            duplicado_nombre = duplicado_nombre.exclude(pk=self.instance.pk)
-
-        if duplicado_nombre.exists():
-            raise forms.ValidationError(
-                f"Ya existe un paciente registrado como '{nb1} {ap1}'. Verifica en el buscador."
-            )
         
         if telefono:
             duplicado_tel = Paciente.objects.filter(telefono=telefono)

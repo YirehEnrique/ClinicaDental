@@ -6,7 +6,7 @@ from .models import PlanTratamiento, PlanItems, ItemSesion, TipoTratamiento
 class FormPlanTratamiento(forms.ModelForm):
     class Meta:
         model = PlanTratamiento
-        fields = ['complejidad', 'notas', 'estado', 'dentista', 'paciente', 'tratamiento']
+        fields = ['complejidad', 'notas', 'estado', 'dentista', 'paciente', 'tratamiento','precio_estimado']
 
         labels = {
             'complejidad': 'Nivel de Complejidad',
@@ -15,6 +15,7 @@ class FormPlanTratamiento(forms.ModelForm):
             'dentista': 'Dentista',
             'paciente': 'Paciente',
             'tratamiento': 'Tipo de Tratamiento',
+            'precio_estimado': 'Precio Estimado'
         }
 
         widgets = {
@@ -24,6 +25,12 @@ class FormPlanTratamiento(forms.ModelForm):
             'complejidad': forms.Select(attrs={'class': 'form-select'}),
             'notas': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'estado': forms.Select(attrs={'class': 'form-select'}),
+            'precio_estimado': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.10',
+                'min': '0',
+                'placeholder': '0.00'
+            })
         }  
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
