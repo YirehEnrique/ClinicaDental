@@ -16,8 +16,8 @@ class PlanTratamiento(models.Model):
                             on_delete=models.CASCADE)
     dentista=models.ForeignKey(Dentista, default=1,
                             on_delete=models.CASCADE)
-    complejidad=models.CharField(max_length=1, 
-                            choices=[('B','Baja'),('M','Media'),('A','Alta')], default='B')
+    #complejidad=models.CharField(max_length=1, 
+    #                        choices=[('B','Baja'),('M','Media'),('A','Alta')], default='B')
     notas=models.TextField(blank=True, null=True)
     estado=models.CharField(max_length=1, 
                             choices=[('C','Cancelado'),('E','En Proceso'),('T','Completado')], default='E')

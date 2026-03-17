@@ -1,36 +1,15 @@
 from django.db import models
 from django.core.validators import RegexValidator
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager, AbstractUser
 
-from django.utils import timezone
-
+#from django.utils import timezone
 from clinica_dental import settings
+
 # Create your models here.
-"""
-class UserManager(BaseUserManager):
-    def _create_user(self, username, email,password, is_staff, is_superuser, **extrafields):
-        user = self.model(
-            username = username,
-            email = email,
-            is_staff = is_staff,
-            is_superuser = is_superuser,
-            **extrafields
-        )
-        user.set_password(password)
-        user.save(using=self.db)
-        return user
-    def create_user(self, username, email, name, last_name,password = None, **extrafields):
-        return self._create_user(username, email, name, last_name,password, False, False, **extrafields)
-    
-    def create_superuser(self, username, email, name, last_name,password = None, **extrafields):
-        return self._create_user(username, email, name, last_name,password, True, True, **extrafields)
-    
-class Usuario(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=40, unique=True)
-    email = models.EmailField('Correo Electrónico', max_length=120, unique=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    objects = UserManager()
+
+class Usuario(AbstractUser):
+    #telefono = models.CharField(max_length=15, null=True, blank=True)
+    cuentas_permitidas = models.IntegerField()
 
     class Meta: 
         verbose_name = 'usuario'
@@ -42,7 +21,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
-"""
 
 class Paciente(models.Model):
     solo_numeros = RegexValidator(
@@ -64,9 +42,13 @@ class Paciente(models.Model):
         blank=True,
         null=True,
     )
-    #fecha_nacimiento = models.DateTimeField(default= timezone.now(), blank=True)
-    #es_menor = models.BooleanField(default=False)
-    #usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    es_menor = models.BooleanField(default=False)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f"{self.nb1} {self.ap1}"
+
+
+
+#email = models.EmailField('Correo Electrónico', max_length=120, unique=True)
+    
