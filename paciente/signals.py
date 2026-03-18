@@ -15,7 +15,7 @@ def crear_usuario_para_paciente(sender, instance, created, **kwargs):
     if instance.es_menor:
         return
     
-    username = instance.telefono 
+    username = instance.telefono
     if not username:
         return
     partes = [

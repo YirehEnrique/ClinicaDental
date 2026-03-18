@@ -6,21 +6,24 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 from clinica_dental import settings
 
 # Create your models here.
-
 class Usuario(AbstractUser):
-    #telefono = models.CharField(max_length=15, null=True, blank=True)
-    cuentas_permitidas = models.IntegerField()
+    #telefono = models.CharField(max_length=8, null=True, blank=True)
+    cuentas_permitidas = models.IntegerField(null=True, blank=True)
 
     class Meta: 
         verbose_name = 'usuario'
         verbose_name_plural = 'usuarios'
     
-    USERNAME_FIELD = 'username'
-    #REQUIRED_FIELDS = ['username']
-    
     def __str__(self):
         return self.username
-
+"""
+class Perfil(models.Model):
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    cuentas_permitidas = models.IntegerField(default=1)
+    class Meta: 
+        verbose_name = 'perfil'
+        verbose_name_plural = 'perfiles'
+"""
 
 class Paciente(models.Model):
     solo_numeros = RegexValidator(
@@ -33,7 +36,7 @@ class Paciente(models.Model):
     nb2 = models.CharField(max_length=30, blank=True, null=True)
     ap1 = models.CharField(max_length=30)
     ap2 = models.CharField(max_length=30, blank=True, null=True)
-    telefono = models.CharField(max_length=8, validators=[solo_numeros], blank=False, null=False, default='00000000')
+    telefono = models.CharField(max_length=8, validators=[solo_numeros], blank=False, null=False)#, default='')
     correo = models.EmailField(blank=True, null=True)
     sexo=models.CharField(max_length=10, choices=[('M','Masculino'),('F','Femenino')])
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -47,8 +50,3 @@ class Paciente(models.Model):
 
     def __str__(self):
         return f"{self.nb1} {self.ap1}"
-
-
-
-#email = models.EmailField('Correo Electrónico', max_length=120, unique=True)
-    

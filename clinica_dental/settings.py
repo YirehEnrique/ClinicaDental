@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cita',
     'login',
-    'paciente',
+    'paciente.apps.ClienteConfig',
     'tratamientos',
     'dentista'    
 ]

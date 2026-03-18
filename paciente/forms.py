@@ -17,7 +17,6 @@ class Formpaciente(forms.ModelForm):
             'sexo': 'Sexo',
             'cedula': 'Cédula',
             #'es_menor': 'Menor de Edad',
-            #'fecha_nacimiento': 'Fecha Nacimiento',
         }
 
         widgets = {
@@ -58,14 +57,10 @@ class Formpaciente(forms.ModelForm):
             'cedula': forms.TextInput(attrs={
                 'class': 'form-control',
                 'id': 'input-cedula',
-            })
+            }),
             #'es_menor':forms.Select(attrs={
              #   'class': 'form-select',
               #  'id': 'input-es-menor',
-            #}),
-            #'fecha_nacimiento':forms.DateTimeInput(attrs={
-             #   'class': 'form-control',
-              #  'type': 'datetime'
             #})
         }
     def clean(self):
