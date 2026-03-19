@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yxc3-=w7^8pch)=w6&79fd2lr^yc35uekjzeu+4(n!+@wff0mx'
+SECRET_KEY = os.environ.get("SECRET_KEY") #Aquí traigo la variable de entorno llamada SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cita',
     'login',
-    'paciente',
+    'paciente.apps.ClienteConfig',
     'tratamientos',
     'dentista'    
 ]
@@ -80,13 +84,45 @@ WSGI_APPLICATION = 'clinica_dental.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
+"""
+--Usando Pooler
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.qodkeulvwevukezyrlwr',
+        'HOST': os.environ.get("SUPABASE_HOST"), #'db.qodkeulvwevukezyrlwr.supabase.co',
+        'PASSWORD': os.environ.get("SUPABASE_PASSWORD"),
+        'PORT': '6543',
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
+    }
+}
+--Usando conexión directa (da error por el dns)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': os.environ.get("SUPABASE_HOST"), #'db.qodkeulvwevukezyrlwr.supabase.co',
+        'PASSWORD': os.environ.get("SUPABASE_PASSWORD"),
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'verify-full',
+            'sslrootcert': os.path.join(BASE_DIR, 'prod-ca-2021.crt')
+        }
+    }
+}
+"""
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -118,6 +154,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+AUTH_USER_MODEL = 'paciente.Usuario'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
