@@ -5,6 +5,7 @@ from .forms import FormCita
 from .models import Cita
 from .models import Dentista
 from .models import EstadoCita
+from .models import TipoCita
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
@@ -13,13 +14,16 @@ import datetime
 import threading
 import time
 
-
 from email.message import EmailMessage
 import ssl
 import smtplib
 
 import logging
 from django.contrib import messages
+
+#Importamos para usar el json.dumps(...)
+import json
+
 # Create your views here.
 
 def enviar_whatsapp_async(telefono, mensaje):
@@ -84,7 +88,7 @@ def cita(request):
                         if field == '__all__':
                             messages.error(request, error)
                         else:
-                            messages.error(request, f"{error}")
+                            messages.error(request, f"hay un error quien sabe donde{error}")
 
         elif accion == 'completada':
             cita = Cita.objects.get(id=cita_id)
@@ -170,6 +174,9 @@ def cita(request):
     else:
         form=  FormCita() 
 
+    #Guardamos el precio de las citas (según su tipo) en un diccionario
+    dict_precios = {tipo.id : float(tipo.precio) for tipo in TipoCita.objects.all()}
+
     context = {
         'form': form,
         'page_obj': page_obj,
@@ -179,6 +186,6 @@ def cita(request):
         'fechas': fechas,
         'hours': hours,
         'minutes': minutes,
+        'precios_json': json.dumps(dict_precios), #Enviamos los precios de las citas xd
     }
     return render(request, 'cita.html', context)
-

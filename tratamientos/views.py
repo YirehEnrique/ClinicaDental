@@ -2,12 +2,15 @@ from urllib import request
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import FormPlanTratamiento, FormPlanItems
-from .models import PlanTratamiento, PlanItems, ItemSesion
+from .models import PlanTratamiento, PlanItems, ItemSesion, TipoTratamiento
 from django.db.models import Q
 from cita.forms import FormCita
 from cita.models import Cita
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+import json
+
 # Create your views here.
 @login_required
 def tratamiento(request):
@@ -146,11 +149,13 @@ def tratamiento(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    dict_costoTratamiento = {tipo.id : float(tipo.precio_estimado) for tipo in TipoTratamiento.objects.all()}
     context = {
         'formTratamiento': formTratamiento,
         'formItem':formItem,
         'page_obj':page_obj,
         'q':q,
-        'formCita':formCita
+        'formCita':formCita,
+        'precios_json': json.dumps(dict_costoTratamiento), #Enviamos los costos estimados
     }
     return render(request, 'tratamiento.html', context)

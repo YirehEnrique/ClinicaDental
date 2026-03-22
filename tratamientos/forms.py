@@ -32,6 +32,9 @@ class FormPlanTratamiento(forms.ModelForm):
         }  
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['precio_estimado'].widget.attrs['readonly'] = True
+
         self.fields['estado'].required = False
         self.fields['estado'].initial = 'E'
         self.fields['dentista'].queryset = self.fields['dentista'].queryset.filter(estado=True)
@@ -56,6 +59,12 @@ class FormPlanTratamiento(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=False)
+
+        if not obj.precio_estimado or obj.precio_estimado == 0:
+            tipoTC = self.cleaned_data.get('tratamiento')
+            if tipoTC:
+                obj.precio_estimado = tipoTC.precio_estimado 
+
         if commit:
             obj.save()
         return obj

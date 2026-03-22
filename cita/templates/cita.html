@@ -26,7 +26,7 @@
                             <label class="form-label">Fecha</label>
                             {{ form.fecha }}
                         </div>
-                        <div class="col-3">
+                        <div class="col-6">
                             <label class="form-label">Hora inicio</label>
                             {{ form.hora }}
                         </div>
@@ -34,12 +34,19 @@
                             <label class="form-label">Tipo</label>
                             {{ form.tipo_cita }}
                         </div>
+                        <div class="col-6">
+                            <label class="form-label">Precio</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.precio_cita }}
+                            </div>
+                        </div>
                         <div class="col-12">
                             <label class="form-label">Notas</label>
                             {{ form.notas }}
                         </div>
                     </div>
-                </div>
+                </div> 
                 <div class="card-footer bg-white">
                     <div class="d-grid mt-3">
                         <button type="submit" class="btn btn-primary btn" name="accion" value="guardar"><i
@@ -351,4 +358,40 @@
         </div>
     </div>
 </div>
+
+<script>
+    // 1. Convertimos los datos de Django (Python) a un formato que JS entienda (JSON)
+    const preciosData = {{ precios_json|safe }};
+
+    // 2. Esperamos a que todo el HTML se haya cargado en el navegador
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 3. "Capturamos" los elementos del formulario por su atributo 'name'
+        const selectTipoCita = document.querySelector('select[name="tipo_cita"]');
+        const inputPrecio = document.querySelector('input[name="precio_cita"]');
+
+        // 4. Verificamos que ambos existan para evitar errores en la consola
+        if (selectTipoCita && inputPrecio) {
+            
+            // 5. Creamos un "Escuchador de Eventos". 
+            // Se activará cada vez que el usuario cambie la opción del select.
+            selectTipoCita.addEventListener('change', function() {
+                
+                // 'this.value' nos da el ID del TipoCita seleccionado
+                const idSeleccionado = this.value;
+
+                // 6. Buscamos ese ID en nuestra lista de precios
+                if (idSeleccionado in preciosData) {
+                    // Actualizamos el valor del cuadro de texto
+                    // .toFixed(2) asegura que siempre tenga 2 decimales (ej: 10.00)
+                    inputPrecio.value = preciosData[idSeleccionado].toFixed(2);
+                } else {
+                    // Si no hay nada seleccionado, volvemos a cero
+                    inputPrecio.value = "0.00";
+                }
+            });
+        }
+    });
+</script>
+
 {% endblock %}

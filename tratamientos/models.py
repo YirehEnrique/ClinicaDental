@@ -6,6 +6,7 @@ from dentista.models import Dentista
 
 class TipoTratamiento(models.Model):
     nombre = models.CharField(max_length=100)
+    precio_estimado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return self.nombre
@@ -25,6 +26,9 @@ class PlanTratamiento(models.Model):
     actualizada=models.DateTimeField(auto_now=True, blank=True, null=True)
     precio_estimado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    def __str__(self):
+        return f'{self.id}'#: {self.paciente.nb1} {self.paciente.ap1}, {self.dentista.ap1}'
+
 class PlanItems(models.Model):
     nombre=models.CharField(max_length=100, default='')
     plan_tratamiento=models.ForeignKey(PlanTratamiento, default=1, related_name='plan_items',
@@ -36,6 +40,9 @@ class PlanItems(models.Model):
     creada=models.DateTimeField(auto_now_add=True)
     actualizada=models.DateTimeField(auto_now=True, blank=True, null=True)
 
+    def __str__(self):
+        return f'{self.nombre}'
+
 class ItemSesion(models.Model):
     plan_item=models.ForeignKey(PlanItems, default=1,
     on_delete=models.CASCADE)
@@ -43,3 +50,6 @@ class ItemSesion(models.Model):
                             on_delete=models.CASCADE)
     creada=models.DateTimeField(auto_now_add=True)
     actualizada=models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.id}: {self.plan_item.nombre}'

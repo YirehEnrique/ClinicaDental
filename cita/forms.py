@@ -7,7 +7,7 @@ from .models import Cita
 class FormCita(forms.ModelForm):
     class Meta:
         model = Cita
-        fields = ['fecha', 'hora', 'notas', 'paciente', 'dentista', 'tipo_cita', 'estado_cita']
+        fields = ['fecha', 'hora', 'notas', 'paciente', 'dentista', 'tipo_cita', 'estado_cita', 'precio_cita']
         labels = {
             'fecha': 'Fecha de la Cita',
             'hora': 'Hora de la Cita',
@@ -16,6 +16,7 @@ class FormCita(forms.ModelForm):
             'dentista': 'Dentista',
             'tipo_cita': 'Tipo de Cita',
             'estado_cita': 'Estado de la Cita',
+            'precio_cita': 'Precio de la Cita',
         }
 
         widgets = {
@@ -41,11 +42,20 @@ class FormCita(forms.ModelForm):
                 'class': 'form-select',
             }),
             'estado_cita': forms.Select(attrs={
-                'class': 'form-select',
+                'class': 'form-control',
+                'step': '0.10',
+                'min': '0',
+                'placeholder': '0.00'
+            }),
+            'precio_cita': forms.NumberInput(attrs={
+                'class': 'form-control',
             }),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['precio_cita'].widget.attrs['readonly'] = True
+
         self.fields['estado_cita'].required = False
         self.fields['estado_cita'].initial = 1
         self.fields['fecha'].initial = timezone.now().date()
@@ -55,6 +65,12 @@ class FormCita(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=False)
+
+        if not obj.precio_cita or obj.precio_cita == 0:
+            tipoC = self.cleaned_data.get('tipo_cita')
+            if tipoC:
+                obj.precio_cita = tipoC.precio 
+
         if self.cleaned_data.get('estado_cita') is None:
             obj.estado_cita_id = 1 
         if commit:
