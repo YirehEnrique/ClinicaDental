@@ -29,7 +29,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY") #Aquí traigo la variable de entorno l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    #'192.168.0.32'
+]
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL= 'citas'
@@ -117,6 +119,7 @@ DATABASES = {
     }
 }
 """
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

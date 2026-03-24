@@ -96,13 +96,24 @@ def cita(request):
             cita.save()
         elif accion == 'cancelar':
             cita = Cita.objects.get(id=cita_id)
-            cita.estado_cita_id = 3  # Cancelada
+            cita.estado_cita_id = 3  # Cancelada 
             cita.save()
 
         
         elif accion == 'reprogramar':
             cita = get_object_or_404(Cita, id=cita_id)
-            form= FormCita(request.POST, instance=cita)
+            
+            datos = {
+                'paciente': cita.paciente.id,
+                'dentista': cita.dentista.id,
+                'tipo_cita': cita.tipo_cita.id,
+                'precio_cita': cita.precio_cita,
+                'notas': cita.notas,
+                'estado_cita': 1, # Forzamos a Pendiente
+            }
+            datos.update(request.POST.dict())
+
+            form= FormCita(datos, instance=cita)
 
             if form.is_valid():
                 citag = form.save(commit=False)
@@ -115,7 +126,7 @@ def cita(request):
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
-                        messages.error(request, error)
+                        messages.error(request, f"Error en {field}: {error}")
             
             return redirect('cita')
 
@@ -186,6 +197,6 @@ def cita(request):
         'fechas': fechas,
         'hours': hours,
         'minutes': minutes,
-        'precios_json': json.dumps(dict_precios), #Enviamos los precios de las citas xd
+        'precios_json': json.dumps(dict_precios), #Enviamos los precios de las citas xd 
     }
     return render(request, 'cita.html', context)

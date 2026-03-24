@@ -9,6 +9,8 @@ from cita.models import Cita
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from cita.models import TipoCita
+
 import json
 
 # Create your views here.
@@ -67,11 +69,15 @@ def tratamiento(request):
 
         elif accion=="agendarCita":
             item_id=request.POST.get('item_id')
-
+            #paciente_id = request.POST.get('paciente_id')
+            
             datos_formulario = request.POST.copy()
             datos_formulario['paciente'] = paciente_id
 
-            paciente_id=request.POST.get('paciente_id')
+            # if not datos_formulario.get('tipo_cita'):
+            #     datos_formulario['tipo_cita'] = 1
+
+            #paciente_id=request.POST.get('paciente_id')
             formCita=FormCita(datos_formulario)
             
             if formCita.is_valid():
@@ -87,7 +93,7 @@ def tratamiento(request):
                         if field == '__all__':
                             messages.error(request, f"{error}")
                         else:
-                            messages.error(request, f"{error}")
+                            messages.error(request, f"Error en {field}: {errors.as_text()}")
 
         elif accion in ['completada', 'cancelar', 'reprogramar']:
             cita = get_object_or_404(Cita, id=cita_id)
@@ -150,12 +156,15 @@ def tratamiento(request):
     page_obj = paginator.get_page(page_number)
 
     dict_costoTratamiento = {tipo.id : float(tipo.precio_estimado) for tipo in TipoTratamiento.objects.all()}
+    dict_precios_citas = {tipo.id : float(tipo.precio) for tipo in TipoCita.objects.all()}
+
     context = {
         'formTratamiento': formTratamiento,
         'formItem':formItem,
         'page_obj':page_obj,
         'q':q,
         'formCita':formCita,
-        'precios_json': json.dumps(dict_costoTratamiento), #Enviamos los costos estimados
+        'precios_tratamientos_json': json.dumps(dict_costoTratamiento), #Enviamos los costos estimados
+        'precios_citas_json': json.dumps(dict_precios_citas),
     }
     return render(request, 'tratamiento.html', context)

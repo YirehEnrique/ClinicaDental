@@ -8,6 +8,7 @@ class FormPlanTratamiento(forms.ModelForm):
         model = PlanTratamiento
         fields = ['notas', 'estado', 'dentista', 'paciente', 'tratamiento','precio_estimado']
 
+        #Declaramos los label que iran a los templates.
         labels = {
             'notas': 'Notas Adicionales',
             'estado': 'Estado',
@@ -17,6 +18,7 @@ class FormPlanTratamiento(forms.ModelForm):
             'precio_estimado': 'Precio Estimado'
         }
 
+        #Definimos los widgets y su tipo en dependencia de los datos a requerir y demás
         widgets = {
             'tratamiento': forms.Select(attrs={'class': 'form-select'}),
             'paciente': forms.Select(attrs={'class': 'form-select'}),
@@ -44,17 +46,22 @@ class FormPlanTratamiento(forms.ModelForm):
         paciente = cleaned_data.get('paciente')
         tipo_tratamiento = cleaned_data.get('tratamiento')
 
+        #Confirmamos si hay paciente y el tipo de tratamiento
         if paciente and tipo_tratamiento:
+            #Excluimos los estados de cancelado y terminado de los tratamientos.
             duplicados = PlanTratamiento.objects.filter(
                 paciente=paciente,
                 tratamiento=tipo_tratamiento
             ).exclude(estado__in=['C', 'T'])
 
+            #Confirmamos duplicados y los excluimos
             if self.instance.pk:
                 duplicados = duplicados.exclude(pk=self.instance.pk)
 
+            #Comprobamos que no hayan tratamientos duplicados y mandamos un mensaje xd
             if duplicados.exists():
                 self.add_error('tratamiento', f"El paciente {paciente} ya tiene un tratamiento de '{tipo_tratamiento}' en curso.")
+        #Retornamos los datos limpios 
         return cleaned_data
 
     def save(self, commit=True):

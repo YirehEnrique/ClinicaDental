@@ -66,6 +66,7 @@ class FormCita(forms.ModelForm):
     def save(self, commit=True):
         obj = super().save(commit=False)
 
+        #Esto sería para cuando se registra nueva cita
         if not obj.precio_cita or obj.precio_cita == 0:
             tipoC = self.cleaned_data.get('tipo_cita')
             if tipoC:

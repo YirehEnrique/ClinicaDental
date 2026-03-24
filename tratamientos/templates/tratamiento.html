@@ -372,15 +372,14 @@
                                                     <form method="POST">
                                                         {% csrf_token %}
 
-                                                        <input type="hidden" name="item_id"
-                                                            id="item_id" value="{{ item.id }}">
+                                                        <input type="hidden" name="item_id" id="item_id" value="{{ item.id }}">
                                                         <input type="hidden" name="paciente_id" value="{{ item.plan_tratamiento.paciente.id }}">
 
                                                         <div class="row g-3">
                                                             <div class="col-12">
                                                                 <div class="d-flex align-items-center">
                                                                     <i class="bi bi-person-fill fs-3 me-2 text-secondary"></i>
-                                                                    <p class="text-dark fs-5"><strong>{{tratamientos.paciente.nb1}} {{tratamientos.paciente.ap1}}</strong></p>
+                                                                    <p class="text-dark fs-5"><strong>{{ item.plan_tratamiento.paciente.nb1 }} {{ item.plan_tratamiento.paciente.ap1 }}</strong></p>
                                                                 </div>
                                                             </div>
                                                             <div class="col-12">
@@ -401,6 +400,13 @@
                                                                 <label class="form-label">Tipo</label>
                                                                 {{ formCita.tipo_cita }}
                                                             </div>
+                                                            <div class="col-6">
+                                                                <label class="form-label">Precio</label>
+                                                                <div class="input-group">
+                                                                    <span class="input-group-text">$</span>
+                                                                    {{ formCita.precio_cita }}
+                                                                </div>
+                                                            </div>
                                                             <div class="col-12">
                                                                 <label class="form-label">Notas</label>
                                                                 {{ formCita.notas }}
@@ -408,9 +414,7 @@
                                                         </div>
 
                                                         <div class="modal-footer">
-                                                            <button type="button"
-                                                                class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Cerrar</button>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                                             <button type="submit" name="accion"
                                                                 value="agendarCita"
                                                                 class="btn btn-primary">Agregar</button>
@@ -505,8 +509,7 @@
 
 <script>
     // 1. Convertimos los datos de Django (Python) a un formato que JS entienda (JSON)
-    const preciosData = {{ precios_json|safe }};
-
+    const preciosData = {{ precios_tratamientos_json|safe }};
     // 2. Esperamos a que todo el HTML se haya cargado en el navegador
     document.addEventListener('DOMContentLoaded', function() {
         
@@ -535,6 +538,24 @@
                 }
             });
         }
+    });
+
+    document.addEventListener('change', function(e) {
+    if (e.target && e.target.name === 'tipo_cita') {
+        const select = e.target;
+        const modal = select.closest('.modal');
+        const inputPrecio = modal.querySelector('input[name="precio_cita"]');
+        
+        // Usamos el JSON que pasaste desde Django: 'precios_json'
+        const precios = JSON.parse('{{ precios_citas_json|safe }}');
+        const tipoId = select.value;
+
+        if (precios[tipoId]) {
+            inputPrecio.value = precios[tipoId].toFixed(2);
+        } else {
+            inputPrecio.value = "0.00";
+        }
+    }
     });
 </script>
 
