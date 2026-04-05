@@ -3,7 +3,8 @@
 # Entornos virtuales (¡CRUCIAL!)
 venv/
 env/
-.env
+
+# Temporalmente lo quito xd .env
 
 # Archivos de Python compilados
 __pycache__/

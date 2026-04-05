@@ -1,13 +1,19 @@
 from django.db import models
 from django.core.validators import RegexValidator
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager, AbstractUser
+from django.contrib.auth.models import AbstractUser
 
 #from django.utils import timezone
 from clinica_dental import settings
 
 # Create your models here.
 class Usuario(AbstractUser):
-    #telefono = models.CharField(max_length=8, null=True, blank=True)
+    
+    class ROL_CHOICES(models.TextChoices):
+        paciente = 'pa', ('Paciente')
+        dentista = 'de', ('Dentista')
+        administrador = 'ad', ('Administrador')
+
+    rol = models.CharField(max_length=12,choices=ROL_CHOICES.choices, default=ROL_CHOICES.paciente)
     cuentas_permitidas = models.IntegerField(null=True, blank=True)
 
     class Meta: 

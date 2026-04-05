@@ -82,13 +82,36 @@ class FormCita(forms.ModelForm):
         cleaned_data = super().clean()
         fecha = cleaned_data.get('fecha')
         hora = cleaned_data.get('hora')
-        
+        paciente = cleaned_data.get('paciente')
+
+        #Validamos que el paciente no tenga citas agendadas previamente (pendientes)
+        #Si hay un paciente que pasó validaciones 
+        if paciente: 
+            #Filtramos para obtener las citas pendientes del paciente (si las hay)
+            citas_existentes = Cita.objects.filter(
+                paciente = paciente,
+                estado_cita = 1
+            )
+
+            #Si estamos editando un cita que ya existe (porque ya está en pendiente otra cita)
+            if self.instance.pk:
+                #Entonces excluimos la misma cita que estamos editando xd
+                citas_existentes = citas_existentes.exclude(pk=self.instance.pk)
+            
+            #Si si hay conflcitos entonces devolvemos el error.
+            if citas_existentes.exists():
+                self.add_error('paciente', "El paciente ya tiene una cita agendada.")
+                return cleaned_data
+
+        #Validamos fecha y hora para agendar la cita
         if fecha and hora:
             cita_nueva_dt = datetime.combine(fecha, hora)
 
+            #Rango límite para agendar las citas (40m)
             limite_inferior = (cita_nueva_dt - timedelta(minutes=39)).time()
             limite_superior = (cita_nueva_dt + timedelta(minutes=39)).time()
 
+            #Comprobamos si existe algún conflicto
             citas_conflicto = Cita.objects.filter(
                 fecha=fecha,
                 hora__range=(limite_inferior, limite_superior)

@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django import forms
-from .models import PlanTratamiento, PlanItems, ItemSesion, TipoTratamiento
+from .models import PlanTratamiento, ItemSesion, TipoTratamiento #,PlanItems
 
 
 class FormPlanTratamiento(forms.ModelForm):
@@ -76,41 +76,13 @@ class FormPlanTratamiento(forms.ModelForm):
             obj.save()
         return obj
 
-
-class FormPlanItems(forms.ModelForm):
-    class Meta:
-        model = PlanItems
-        fields = ['nombre', 'orden', 'notas']
-        labels = {
-            'nombre': 'Nombre del Item',
-            'orden': 'Orden del Item',
-            'notas': 'Notas Adicionales',
-        }
-        widgets = {
-            'nombre': forms.TextInput(attrs={
-                'class': 'form-control',
-            }),
-            'orden': forms.HiddenInput(),
-            'notas': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-            }),
-        }
-    def __init__(self, *args, **kwargs):
-        plan_tratamiento = kwargs.get('initial', {}).get('plan_tratamiento')
-
-        super().__init__(*args, **kwargs)
-        if plan_tratamiento:
-            ultimo_plan_item = PlanItems.objects.filter(plan_tratamiento=plan_tratamiento).order_by('-orden').first()
-           
-            if ultimo_plan_item:
-                self.fields['orden'].initial = ultimo_plan_item.orden + 1
-            else:
-                self.fields['orden'].initial = 1
-        self.fields['orden'].required = False
-
-
 class FormItemSesion(forms.ModelForm):
     class Meta:
         model = ItemSesion
-        fields=['plan_item','cita']
+        fields = ['nombre_sesion']  # Incluimos explícitamente el campo de nombre
+        labels = {
+            'nombre_sesion': 'Nombre de la sesión',
+        }
+        widgets = {
+            'nombre_sesion': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+        }

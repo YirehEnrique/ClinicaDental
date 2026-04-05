@@ -88,7 +88,7 @@ def cita(request):
                         if field == '__all__':
                             messages.error(request, error)
                         else:
-                            messages.error(request, f"hay un error quien sabe donde{error}")
+                            messages.error(request, f"{error}")
 
         elif accion == 'completada':
             cita = Cita.objects.get(id=cita_id)

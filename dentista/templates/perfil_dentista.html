@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <div class="card p-4 shadow-sm">
+                <i class="bi bi-person-circle display-1 text-primary"></i>
+                <h3 class="mt-2">{{ dentista.nb1 }} {{ dentista.ap1 }}</h3>
+                <p class="badge bg-info">Dentista</p>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card p-4 shadow-sm">
+                <h5>Información Personal</h5>
+                <hr>
+                <p><strong>Primer Nombre:</strong> {{ dentista.nb1 }}</p>
+                <p><strong>Primer Apellido:</strong> {{ dentista.ap1 }}</p>
+                <p><strong>Correo:</strong> {{ dentista.correo }}</p>
+                <p><strong>Teléfono:</strong> {{ dentista.telefono|default:"No registrado" }}</p>
+                
+                <a href="{% url 'cambio_contra' %}" class="btn btn-outline-warning mt-3">
+                    <i class="bi bi-key"></i> Cambiar Contraseña
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

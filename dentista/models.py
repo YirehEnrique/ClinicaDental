@@ -1,7 +1,10 @@
 from django.db import models
+from django.conf import settings
 
-# Create your models here.
+# Create your models here. 
 class Dentista(models.Model):
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+
     nb1 = models.CharField(max_length=30)
     nb2 = models.CharField(max_length=30, blank=True, null=True)
     ap1 = models.CharField(max_length=30)

@@ -1,6 +1,8 @@
 from django import forms
 from .models import Dentista
 from django.db.models import Q
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordResetForm
 
 class FormDentista(forms.ModelForm):
     class Meta:
@@ -131,3 +133,35 @@ class FormDentista(forms.ModelForm):
 
         # Retornamos la cédula limpia (sin guiones) para que se guarde estandarizada
         return cedula_limpia
+    
+
+# class CustomPasswordChangeForm(PasswordChangeForm):
+#     old_password = forms.CharField(
+#         label="Contraseña actual",
+#         widget=forms.PasswordInput(attrs={
+#             'class': 'form-control'
+#         })
+#     )
+
+#     new_password1 = forms.CharField(
+#         label="Nueva contraseña",
+#         widget=forms.PasswordInput(attrs={
+#             'class': 'form-control'
+#         })
+#     )
+
+#     new_password2 = forms.CharField(
+#         label="Confirmar nueva contraseña",
+#         widget=forms.PasswordInput(attrs={
+#             'class': 'form-control'
+#         })
+#     )
+
+# class CustomPasswordResetForm(PasswordResetForm):
+#     email = forms.EmailField(
+#         label="Correo electrónico",
+#         widget=forms.EmailInput(attrs={
+#             'class': 'form-control',
+#             'placeholder': 'Ingrese su correo registrado'
+#         })
+#     )

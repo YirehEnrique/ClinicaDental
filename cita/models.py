@@ -35,17 +35,36 @@ class Cita(models.Model):
     estado_cita = models.ForeignKey(EstadoCita, default=1, on_delete=models.CASCADE)
     creada = models.DateTimeField(default=timezone.now)
     actualizada = models.DateTimeField(auto_now=True, blank=True, null=True)
+    itemsesion = models.ForeignKey(
+        'tratamientos.ItemSesion',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="citas"
+    )
 
     def __str__(self):
         return f'{self.tipo_cita}'#: {self.paciente.nb1} {self.paciente.ap1}'
 
 
 class PeticionCita(models.Model):
-    paciente = models.ForeignKey('paciente.Paciente', on_delete=models.CASCADE, default= 1)
-    tratamiento = models.ForeignKey('tratamientos.PlanTratamiento', on_delete=models.CASCADE, default= 1)
-    fecha = models.DateField(default=timezone.now)
-    hora = models.TimeField(default=timezone.now)
-    estado_cita = models.ForeignKey('cita.EstadoCita', on_delete=models.CASCADE)
+    paciente = models.ForeignKey('paciente.Paciente', on_delete=models.CASCADE, null=True)
+    tipo_cita = models.ForeignKey('cita.TipoCita', on_delete=models.CASCADE, default=1)
+    #tratamiento = models.ForeignKey('tratamientos.PlanTratamiento', on_delete=models.CASCADE, default= 1)
+    fecha = models.DateField(default=timezone.now, null=False)
+    hora = models.TimeField(default=timezone.now, null=False)
+    estado_cita = models.ForeignKey('cita.EstadoCita', on_delete=models.CASCADE, default=1)
+
+    def __str__(self):
+        return f'{self.id}'
+
+class Notificacion_Notificacion_Cita(models.Model):
+    fk_peticion_cita = models.ForeignKey('cita.PeticionCita', null=True, on_delete=models.CASCADE)
+    fk_paciente = models.ForeignKey('paciente.Paciente', null=True, on_delete=models.CASCADE)
+    fk_cita = models.ForeignKey('cita.Cita', null=True, blank=False, on_delete=models.CASCADE)
+    notas = models.TextField(null=False, blank=False) 
+    titulo = models.CharField(null=True) #Seria mejor agregarlo como mensaje xd
+    creada = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f'{self.id}'

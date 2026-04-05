@@ -1,0 +1,18 @@
+.collapse {
+    transition: 
+        background-color 0.3s ease,
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+.collapse:not(.show) {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.collapse.show {
+    opacity: 1;
+    transform: translateY(0);
+    background-color: #4a6f9c;
+    border-radius: 10px;
+}

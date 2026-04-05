@@ -27,5 +27,7 @@ urlpatterns = [
     path('',RedirectView.as_view(url='/login/',permanent=False )),
     path('tratamientos/', include('tratamientos.urls')),
     path('login/', login_views.login_view, name='login'),
-    path('logout/',login_views.logout_view, name='logout')
+    path('logout/',login_views.logout_view, name='logout'),
+    path('recuperar-contra/',login_views.recuperar_contra, name='recuperar_contra'),
+    path('reset-password/<uidb64>/<token>/', login_views.reset_password_confirm, name='reset_password_confirm'), 
 ]

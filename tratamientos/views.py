@@ -1,8 +1,8 @@
 from urllib import request
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import FormPlanTratamiento, FormPlanItems
-from .models import PlanTratamiento, PlanItems, ItemSesion, TipoTratamiento
+from .forms import FormPlanTratamiento, FormItemSesion
+from .models import PlanTratamiento, ItemSesion, TipoTratamiento
 from django.db.models import Q
 from cita.forms import FormCita
 from cita.models import Cita
@@ -18,17 +18,21 @@ import json
 def tratamiento(request):
 
     formTratamiento = FormPlanTratamiento()
-    formItem = FormPlanItems()
     formCita = FormCita()
+    formSesion = FormItemSesion()
 
     q = request.GET.get('q', '').strip()
-    tratamientos = PlanTratamiento.objects.all().order_by('-estado', '-creada').prefetch_related('plan_items', 'plan_items__itemsesion_set', 'plan_items__itemsesion_set__cita')
+    #Esta consulta permite relacionar directamente los 2 modelos relacionados xd
+    tratamientos = PlanTratamiento.objects.all().order_by('-estado', '-creada').select_related('paciente', 'dentista', 'tratamiento').prefetch_related('sesiones__citas') #.prefetch_related('itemsesion_set__cita')
     accion = request.POST.get('accion')
-
+    
     if request.method == 'POST':
         cita_id=request.POST.get('cita_id')
         paciente_id = request.POST.get('paciente_id')
 
+        # if not accion:
+        #     return redirect('tratamiento')
+        
         if accion == 'guardarTratamiento':
             formTratamiento=FormPlanTratamiento(request.POST)        
             if formTratamiento.is_valid():
@@ -39,54 +43,62 @@ def tratamiento(request):
                 for field, errors in formTratamiento.errors.items():
                     for error in errors:
                         messages.error(request, error)
-                        
+        
+        #Este falta editar para que funcione para las Sesiones
         elif accion == 'guardarItem':
             tratamiento_id=request.POST.get('tratamiento_id')
             print(request.POST)
-            plan_tratamiento= get_object_or_404(PlanTratamiento, id=tratamiento_id)
-            formItem=FormPlanItems(request.POST)
-    
-            if formItem.is_valid():
-                nuevo_item=formItem.save(commit=False)
-                nuevo_item.plan_tratamiento=plan_tratamiento
+            plan_trat = get_object_or_404(PlanTratamiento, id=tratamiento_id)
+            formSesion = FormItemSesion(request.POST)
 
-                ultimo_plan_item=PlanItems.objects.filter(plan_tratamiento=plan_tratamiento).order_by('-orden').first()
-
-                if ultimo_plan_item:
-                    nuevo_item.orden = ultimo_plan_item.orden + 1
-                else:
-                    nuevo_item.orden = 1
-                    nuevo_item.save()
-                    messages.success(request, "Fase agregada correctamente.")
-                    return redirect('tratamiento')
+            if formSesion.is_valid():
+                nueva_sesion = formSesion.save(commit=False)    # Crea la instancia sin guardar aún
+                nueva_sesion.plan_tratamiento = plan_trat      # Asigna la FK manualmente
+                nueva_sesion.save()                            # Guarda en la base de datos
+                messages.success(request, "Sesión agregada al plan de tratamiento.")
+                return redirect('tratamiento')
             else:
-                for field, errors in formItem.errors.items():
+                for field, errors in formSesion.errors.items():
                     for error in errors:
-                        if field == '__all__':
-                            messages.error(request, f"{error}")
-                        else:
-                            messages.error(request, f"{error}")
+                        messages.error(request, f"Error en {field}: {error}")
 
-        elif accion=="agendarCita":
-            item_id=request.POST.get('item_id')
-            #paciente_id = request.POST.get('paciente_id')
-            
+        elif accion=="agendarCita": 
+            #Id´s necesarios para agendar la cita correctamente
+            sesion_id = request.POST.get('sesion_id')
+            plan_tratamiento_id = request.POST.get('tratamiento_id')
+            paciente_id=request.POST.get('paciente_id')
+
             datos_formulario = request.POST.copy()
             datos_formulario['paciente'] = paciente_id
 
-            # if not datos_formulario.get('tipo_cita'):
-            #     datos_formulario['tipo_cita'] = 1
+            if not datos_formulario.get('tipo_cita'):
+                datos_formulario['tipo_cita'] = 1
 
-            #paciente_id=request.POST.get('paciente_id')
+            
             formCita=FormCita(datos_formulario)
             
             if formCita.is_valid():
                 nueva_cita=formCita.save(commit=False)
                 nueva_cita.paciente_id=paciente_id
                 nueva_cita.save()
-                ItemSesion.objects.create(plan_item_id=item_id,cita_id=nueva_cita.id)
-                messages.success(request, "Cita agendada.")
-                return redirect('tratamiento')  
+                if sesion_id:
+                    # Actualizar la sesión existente
+                    nueva_cita.itemsesion_id = sesion_id
+                    nueva_cita.save()
+                    #Anteriormente era esto xd
+                    # sesion = ItemSesion.objects.get(id=sesion_id)
+                    # sesion.cita = nueva_cita
+                    # sesion.save()
+                    messages.success(request, "Cita agendada correctamente.")
+                    return redirect('tratamiento')
+                else: 
+                #     #Creamos la sesión xd
+                #     ItemSesion.objects.create(
+                #         plan_tratamiento_id = plan_tratamiento_id,
+                #         cita = nueva_cita
+                #     )
+                    messages.success(request, "No se encontró la sesión.")
+                    return redirect('tratamiento')  
             else:
                 for field, errors in formCita.errors.items():
                     for error in errors:
@@ -106,6 +118,12 @@ def tratamiento(request):
                 else:
                     cita.estado_cita_id = 2
                     cita.save()
+                    item = cita.itemsesion #ItemSesion.objects.filter(cita=cita).first()
+                    if item:
+                        plan = item.plan_tratamiento
+                        plan.sesiones_realizadas += 1
+                        plan.save()
+                    
                     messages.success(request, "Cita completada con éxito.")
 
             elif accion == 'cancelar':
@@ -135,7 +153,6 @@ def tratamiento(request):
                         for error in errors:
                             messages.error(request, error)
         
-
             return redirect('tratamiento')
     if q:
         tratamientos = tratamientos.filter(
@@ -160,7 +177,7 @@ def tratamiento(request):
 
     context = {
         'formTratamiento': formTratamiento,
-        'formItem':formItem,
+        'formSesion': formSesion,
         'page_obj':page_obj,
         'q':q,
         'formCita':formCita,
@@ -168,3 +185,11 @@ def tratamiento(request):
         'precios_citas_json': json.dumps(dict_precios_citas),
     }
     return render(request, 'tratamiento.html', context)
+
+"""
+
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                                data-bs-target="#AgendarCitaModal{{ sesion.id }}">
+                                                <i class="bi bi-plus"></i> Agendar
+                                            </button>
+"""

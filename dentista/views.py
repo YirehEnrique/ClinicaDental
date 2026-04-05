@@ -4,10 +4,13 @@ from .forms import FormDentista
 from .models import Dentista
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages 
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 @login_required
-def dentista(request):
+def dentista(request): 
     if request.method == 'POST':
         accion = request.POST.get('accion')
         dentista_id = request.POST.get('dentista_id')
@@ -77,3 +80,73 @@ def dentista(request):
             'page_obj': page_obj, 
             'q': q
         })
+
+@login_required
+def perfil_dentista(request):
+    # try: 
+    #     dentista = request.user.dentista
+    # except:
+    #     return redirect("login") 
+    
+    if request.user.rol == "de":
+        dentista = request.user.dentista
+        context = {
+            "nombre": dentista.nb1,
+            "apellido": dentista.ap1,
+            "telefono": dentista.telefono,
+            "correo": dentista.correo
+        }
+        return render(request, "perfil_dentista.html", {"dentista": dentista})
+    #Este else puede causar error creo 
+    else:
+        return redirect("login") #Aquí redireccionamos al login, pero como ya está iniciado en sesión, ps va a citas.
+
+@login_required
+def cambio_contra(request):
+    if request.method == 'POST':
+        #Obtenemos los tres campos, la contraseña actual, su confirmación y la nueva contraseña.
+        current_password = request.POST.get('actual')
+        nueva_password = request.POST.get('nueva')
+        confirma_nueva_password = request.POST.get('confirm_nueva')
+
+        #recuperamos el usuario que está intentando cambiar la contraseña
+        user = request.user
+
+        #Comprobando que no estén vacíos
+        if not current_password or not nueva_password or not confirma_nueva_password:
+            return render(request, "cambio_contra.html", {
+                "error": "Los campos no pueden estar vacíos"
+            })
+        
+        #Comprobamos que las contraseñas actuales ingresadas coincidan
+        if nueva_password != confirma_nueva_password:
+            return render(request, "cambio_contra.html", {"error": "Los campos de la nueva contraseña no coinciden"})
+        
+        #Comprobamos que la contraseña ingresada (actual) coincida con la que está en la base de datos
+        if not user.check_password(current_password):
+            return render(request, "cambio_contra.html", {"error": "Contraseña Actual incorrecta"})
+
+        user.set_password(nueva_password)
+        user.save()
+
+        # Evitar cerrar sesión
+        update_session_auth_hash(request, user)
+
+        # Enviar correo de aviso
+        if user.email is not None:
+            email_sender = settings.EMAIL_HOST_USER
+            email_reciver = user.email
+            subject = 'Aviso de cambio de contraseña'
+            body = f"Este es un aviso de que se cambió su contraseña de Clinica Dental Solis"
+            #Elaboramos el mensaje del correo
+            email = EmailMessage(
+                subject,
+                body,
+                settings.EMAIL_HOST_USER,
+                [email_reciver]
+            )
+            #Enviamos el correo
+            email.send(fail_silently=False) #Ese atributo es para ver si hay algún error lo muestre en consola
+            return render(request, "cambio_contra.html", {"mensaje": "Contraseña cambiada con éxito, se envió un correo"})
+        return render(request, "cambio_contra.html", {"mensaje": "Contraseña cambiada con éxito"})
+    return render(request, "cambio_contra.html")

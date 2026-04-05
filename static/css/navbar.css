@@ -37,3 +37,16 @@
   border-bottom: 2px solid #0d6efd;
 }
 
+/* Icono con transición suave */
+.transition-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Bootstrap añade show en dropdown cuando está abierto */
+.dropdown.show .transition-icon {
+  transform: rotate(180deg);
+}
+.dropdown.show .transition-icon {
+  transform: rotate(180deg);
+  color: #0d6efd;
+}

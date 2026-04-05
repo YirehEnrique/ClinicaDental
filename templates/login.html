@@ -96,16 +96,13 @@
                                     </button>
                                 </div>
                                 <div class="card-footer bg-light border-0 text-center py-3 rounded-bottom">
-                                    <button type="button" class="btn shadow-sm fw-bold text-white" style="background-color: rgb(40, 148, 54);">
-                                        ¿Olvidate tu contraseña?
-                                    </button>
+                                    <a href="{% url 'recuperar_contra' %}" class="text-muted small">¿Olvidaste tu contraseña?</a>
                                 </div>
                             </form>
                         </div>
                         <div
                             class="card-footer bg-light border-0 text-center py-3 rounded-bottom">
-                            <small class="text-muted">¿No tienes cuenta?
-                                contacta al administrador.</small>
+                            <small class="text-muted">¿No tienes cuenta? contacta al administrador.</small>
                         </div>
                     </div>
 
@@ -117,3 +114,7 @@
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
+<!-- 
+    <button type="button" class="btn shadow-sm fw-bold text-white" style="background-color: rgb(40, 148, 54);">
+                                    </button>
+-->
