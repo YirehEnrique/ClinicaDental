@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'css/cliente.css' %}">
     <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tratamientos_collapse.css' %}">
     {% block extra_css %}
     {% endblock %}
 </head>
@@ -46,10 +45,6 @@
                     <li class="nav-item"><a
                             class="nav-link {% if request.resolver_match.url_name == 'tratamiento' %}active{% endif %}"
                             href="{% url 'tratamiento' %}">Tratamientos</a></li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'dentista' %}active{% endif %}"
-                            href="{% url 'dentista' %}">Dentista</a>
-                    </li>
                 </ul>
                 <div class="dropdown ms-auto me-3">
                     <button class="btn user-btn d-flex align-items-center" type="button" id="userMenu"
@@ -65,7 +60,8 @@
                         <!-- Perfil, agregamos la url y su ícono de bootstrap -->
                         <li>
                             <a class="dropdown-item" href="{% url 'perfil_dentista' %}">
-                                <i class="bi bi-person me-2"></i>Perfil</a>
+                                <i class="bi bi-person-circle text-primary"></i> Perfil</a>
+                                
                         </li>
                         <!-- Cerrar sesión, agregamos la url y su ícono también -->
                         <li>

@@ -10,12 +10,12 @@
                 <div
                     class="card-header card-header-slim bg-white d-flex align-items-center">
                     <i class="bi bi-calendar2-week fs-4 me-2 text-primary"></i>
-                    <div class="seccion-tittle">Agregar nueva cita</div>
+                    <div class="seccion-tittle" style="font-weight: bold;">Agregar nueva cita</div>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label ">Paciente</label>
+                            <label class="form-label">Paciente</label>
                             {{ form.paciente }}
                         </div>
                         <div class="col-12">
@@ -34,15 +34,15 @@
                             <label class="form-label">Tipo</label>
                             {{ form.tipo_cita }}
                         </div>
-                        <div class="col-6">
+                        <div class="col-6" >
                             <label class="form-label">Precio</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text" style="background-color: yellow;">$</span>
                                 {{ form.precio_cita }}
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Notas</label>
+                            <label class="form-label">Notas (Opcionales)</label>
                             {{ form.notas }}
                         </div>
                     </div>

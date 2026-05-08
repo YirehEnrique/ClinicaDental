@@ -150,3 +150,12 @@ def cambio_contra(request):
             return render(request, "cambio_contra.html", {"mensaje": "Contraseña cambiada con éxito, se envió un correo"})
         return render(request, "cambio_contra.html", {"mensaje": "Contraseña cambiada con éxito"})
     return render(request, "cambio_contra.html")
+
+
+
+""" Esto es para mostrar el modulo de doctores xd
+<li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name == 'dentista' %}active{% endif %}"
+        href="{% url 'dentista' %}">Dentista</a>
+</li>
+"""

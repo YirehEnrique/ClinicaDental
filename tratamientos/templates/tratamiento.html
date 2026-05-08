@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'tratamientos_collapse.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,7 +13,7 @@
             <div class="card shadow-sm">
                 <div class="card-header card-header-slim bg-white d-flex align-items-center">
                     <i class="bi bi-clipboard-fill fs-4 me-2 text-primary"></i>
-                    <div class="seccion-tittle">Agregar nuevo tratamiento</div>
+                    <div class="seccion-tittle" style="font-weight: bold;">Agregar nuevo tratamiento</div>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
@@ -33,12 +32,12 @@
                         <div class="col-6">
                             <label class="form-label">Costo Estimado</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text" style="background-color: yellow;">$</span>
                                 {{ formTratamiento.precio_estimado }}
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Notas</label>
+                            <label class="form-label">Notas (Opcionales)</label>
                             {{ formTratamiento.notas }}
                         </div>
                     </div>

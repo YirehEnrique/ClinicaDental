@@ -38,8 +38,14 @@ def login_view(request):
         if user is not None:
             login(request, user)
             #return redirect('cita')
+            messages.info(request, "Inicio de Sesión Exitoso. Bienvenido.")
             return redireccion_por_rol(user)
-        else:
+        elif user is None:
+            messages.error(request, 'Usuario No Existe')
+            return render(request, 'login.html', {
+                'title': 'Inicio de Sesión'
+            })
+        else: 
             messages.error(request, 'Usuario o contraseña incorrecto')
             return render(request, 'login.html', {
                 'title': 'Inicio de Sesión'

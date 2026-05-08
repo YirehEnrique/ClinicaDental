@@ -188,8 +188,6 @@ def tratamiento(request):
 
 """
 
-                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                                                data-bs-target="#AgendarCitaModal{{ sesion.id }}">
-                                                <i class="bi bi-plus"></i> Agendar
-                                            </button>
+<link rel="stylesheet" href="{% static 'css/tratamientos_collapse.css' %}">
+Este va en el extra_css pero la verdad como afecta a los demás no lo incluyo xd
 """
