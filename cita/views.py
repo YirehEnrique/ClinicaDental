@@ -2,10 +2,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from .forms import FormCita
-from .models import Cita
-from .models import Dentista
-from .models import EstadoCita
-from .models import TipoCita
+from .models import Cita, Dentista, EstadoCita, TipoCita
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
