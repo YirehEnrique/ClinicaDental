@@ -131,12 +131,27 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-"""
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+"""
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.qodkeulvwevukezyrlwr',
+        'HOST': os.environ.get("SUPABASE_HOST"), #'db.qodkeulvwevukezyrlwr.supabase.co',
+        'PASSWORD': os.environ.get("SUPABASE_PASSWORD"),
+        'PORT': '6543',
+        'CONN_MAX_AGE': 0,
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
     }
 }
 
