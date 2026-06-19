@@ -66,6 +66,8 @@ def redireccion_por_rol(user):
     if role == 'de':
         return redirect('cita')
 
+    if role == 'pa':
+        return print("Redireccionando muchas veces")#redirect('login')
     # Si no cumple nada
     return redirect('login')
 
