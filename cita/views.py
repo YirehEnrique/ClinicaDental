@@ -6,7 +6,7 @@ from .models import Cita, Dentista, EstadoCita, TipoCita
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-import datetime
+
 import threading
 import time
 
@@ -34,7 +34,6 @@ def enviar_whatsapp_async(telefono, mensaje):
             )
         except Exception as e:
             print("Error al enviar WhatsApp:", e)
-
     threading.Thread(target=task).start()
 
 @login_required
@@ -157,7 +156,7 @@ def cita(request):
 
             elif metodo == "whatsapp":
                 mensaje = f"Recordatorio: Su cita está agendada para el {fecha_text} a las {cita.hora}. Clínica Dental."
-                
+                import datetime
                 ahora = datetime.datetime.now()
                 if hora < ahora.hour or (hora == ahora.hour and minutos <= ahora.minute):
                     # mínimo 2 minutos en el futuro
