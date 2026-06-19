@@ -6,7 +6,6 @@ from .models import Cita, Dentista, EstadoCita, TipoCita
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-import pywhatkit
 import datetime
 import threading
 import time
@@ -15,7 +14,7 @@ from email.message import EmailMessage
 import ssl
 import smtplib
 
-import logging
+#import logging
 from django.contrib import messages
 
 #Importamos para usar el json.dumps(...)
@@ -109,22 +108,16 @@ def cita(request):
                 'estado_cita': 1, # Forzamos a Pendiente
             }
             datos.update(request.POST.dict())
-
             form= FormCita(datos, instance=cita)
-
             if form.is_valid():
                 citag = form.save(commit=False)
-                
                 citag.estado_cita_id = 1 
-                
                 citag.save()
-                
                 messages.info(request, "Cita reprogramada correctamente.")
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
                         messages.error(request, f"Error en {field}: {error}")
-            
             return redirect('cita')
 
         elif accion == 'agendar_notificacion':
