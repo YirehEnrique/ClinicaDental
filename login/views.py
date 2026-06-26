@@ -1,3 +1,4 @@
+import threading
 from django.shortcuts import render, redirect 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.tokens import default_token_generator
@@ -11,6 +12,14 @@ from django.conf import settings
 
 from paciente.models import Usuario
 # Create your views here.  
+# Función auxiliar para enviar el correo sin bloquear la página web
+def enviar_email_en_segundo_plano(email_obj):
+    try:
+        email_obj.send(fail_silently=False)
+        print("=== [ÉXITO] El correo se envió correctamente desde el segundo plano ===")
+    except Exception as e:
+        print(f"=== [ERROR SMTP] No se pudo enviar el correo: {e} ===")
+
 
 def register_view(request):  
     if request.method == 'POST':
@@ -142,9 +151,11 @@ def recuperar_contra(request):
                 settings.EMAIL_HOST_USER,
                 [email_reciver]
             )
-            
+
+            hilo = threading.Thread(target=enviar_email_en_segundo_plano, args=(email,))
+            hilo.start()
             #Enviamos el correo
-            email.send(fail_silently=False) #Ese atributo es para ver si hay algún error lo muestre en consola
+            #email.send(fail_silently=False) #Ese atributo es para ver si hay algún error lo muestre en consola
 
             return render(request, "recuperar_contra.html", {"mensaje": "Email enviado con éxito"})
         
