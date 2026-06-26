@@ -218,7 +218,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #Configuración para enviar el Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# Cambiamos de TLS (587) a SSL (465)
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False  # Apagamos TLS
+EMAIL_USE_SSL = True   # Encendemos SSL
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_U")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_P")
