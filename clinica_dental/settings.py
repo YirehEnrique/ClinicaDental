@@ -219,7 +219,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 # Cambiamos de TLS (587) a SSL (465) 
-EMAIL_PORT = 2525
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True  # Apagamos TLS
 EMAIL_USE_SSL = False   # Encendemos SSL 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_U")
