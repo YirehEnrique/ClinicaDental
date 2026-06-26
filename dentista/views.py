@@ -1,3 +1,4 @@
+import threading
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import FormDentista
@@ -8,6 +9,13 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages 
 from django.core.mail import EmailMessage
 from django.conf import settings
+
+def enviar_email_cambio_contra_bg(email_obj):
+    try:
+        email_obj.send(fail_silently=False)
+        print("=== [ÉXITO] El correo de cambio de contraseña se envió correctamente ===")
+    except Exception as e:
+        print(f"=== [ERROR SMTP] No se pudo enviar el correo de cambio de contraseña: {e} ===")
 
 @login_required
 def dentista(request): 
@@ -146,7 +154,9 @@ def cambio_contra(request):
                 [email_reciver]
             )
             #Enviamos el correo
-            email.send(fail_silently=False) #Ese atributo es para ver si hay algún error lo muestre en consola
+            hilo = threading.Thread(target=enviar_email_cambio_contra_bg, args=(email,))
+            hilo.start()
+            #email.send(fail_silently=False) #Ese atributo es para ver si hay algún error lo muestre en consola
             return render(request, "cambio_contra.html", {"mensaje": "Contraseña cambiada con éxito, se envió un correo"})
         return render(request, "cambio_contra.html", {"mensaje": "Contraseña cambiada con éxito"})
     return render(request, "cambio_contra.html")
