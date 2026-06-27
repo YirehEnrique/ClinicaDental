@@ -224,3 +224,5 @@ EMAIL_USE_TLS = True  # Apagamos TLS
 EMAIL_USE_SSL = False   # Encendemos SSL 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_U")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_P")
+
+DEFAULT_FROM_EMAIL = 'enriquemedina880@gmail.com'
