@@ -150,7 +150,7 @@ def cambio_contra(request):
             email = EmailMessage(
                 subject,
                 body,
-                settings.EMAIL_HOST_USER,
+                settings.DEFAULT_FROM_EMAIL,
                 [email_reciver]
             )
             #Enviamos el correo

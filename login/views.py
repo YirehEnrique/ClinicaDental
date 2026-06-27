@@ -20,7 +20,6 @@ def enviar_email_en_segundo_plano(email_obj):
     except Exception as e:
         print(f"=== [ERROR SMTP] No se pudo enviar el correo: {e} ===")
 
-
 def register_view(request):  
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -148,7 +147,7 @@ def recuperar_contra(request):
             email = EmailMessage(
                 subject,
                 body,
-                settings.EMAIL_HOST_USER,
+                settings.DEFAULT_FROM_EMAIL,
                 [email_reciver]
             )
 
